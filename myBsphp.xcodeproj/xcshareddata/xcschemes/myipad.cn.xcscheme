@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "194F3B38218327B10070F5BC"
-               BuildableName = "myipad.cn.dylib"
-               BlueprintName = "myipad.cn"
-               ReferencedContainer = "container:myipad.cn.xcodeproj">
+               BuildableName = "myBsphp.dylib"
+               BlueprintName = "myBsphp"
+               ReferencedContainer = "container:myBsphp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -51,9 +51,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "194F3B38218327B10070F5BC"
-            BuildableName = "myipad.cn.dylib"
-            BlueprintName = "myipad.cn"
-            ReferencedContainer = "container:myipad.cn.xcodeproj">
+            BuildableName = "myBsphp.dylib"
+            BlueprintName = "myBsphp"
+            ReferencedContainer = "container:myBsphp.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

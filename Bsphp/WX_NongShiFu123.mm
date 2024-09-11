@@ -552,7 +552,7 @@ NSString* 到期时间弹窗,*UDID_IDFV,*验证版本,*验证过直播,*弹窗�
                                     [[NSUserDefaults standardUserDefaults] setObject:km forKey:@"卡密"];
                                     if ([到期时间弹窗 containsString:@"YES"]) {
                                         dispatch_async(dispatch_get_main_queue(), ^{
-                                            [self showText:str message:nil Exit:NO];
+                                            [self showText:nil message:str Exit:NO];
                                         });
                                         
                                     }else{

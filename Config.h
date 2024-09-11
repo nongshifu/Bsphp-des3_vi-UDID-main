@@ -13,15 +13,15 @@
 
 
 //服务器地址
-#define  BSPHP_HOST  @"https://yz.jiageapp.cn/AppEn.php?appid=54323345&m=c52cf512b20c3f7ab448d5340b669274"
+#define  BSPHP_HOST  @"https://yz.hehaokun.work/AppEn.php?appid=12345678&m=3b10dc6194ecc6add629061e45790a68"
 //通信认证Key
-#define BSPHP_MUTUALKEY @"d30b8cf256780b3c9577ac90ed3a5fc2"
+#define BSPHP_MUTUALKEY @"03a9f86fc3b6278af71785dd98ec3db7"
 //接收Sgin验证 注意必须填写 并且有[KEY]
-#define BSPHP_INSGIN @"[KEY]GEFWEREGWF"
+#define BSPHP_INSGIN @"[KEY]FFDHGDFSD"
 //输出Sgin验证 注意必须填写 并且有[KEY]
-#define BSPHP_TOSGIN @"[KEY]GEFWEREGWF"
+#define BSPHP_TOSGIN @"[KEY]FFDHGDFSD"
 //数据加密密码
-#define BSPHP_PASSWORD @"YDMxvqz6eCVlYyCEd4"
+#define BSPHP_PASSWORD @"m4Lj9zEXyxhHjtN5kI"
 
 //版本 和软件配置版本号一致 发布新版的时候 修改软件配置的版本号并且在URL那填写下载地址即可 客户端会弹出更新 确定会跳转浏览器下载
 #define JN_VERSION @"v1.0"
@@ -34,7 +34,7 @@
 #define  BS_DSQ 600
 
 //如果使用udid获取描述文件 需要udid.php上传到域名指定目录
-#define  UDID_HOST  @"https://bsphp.aatdx.cn/udid/"
+#define  UDID_HOST  @"https://yz.hehaokun.work/udid/"
 
 //启动APP后多少秒开始验证 单位秒 ** 因为很多游戏有启动画面 启动动画 会刷新UI 刷掉弹窗 相当于没了验证 比如光遇 王者荣耀 等 要等启动动画结束才弹窗 自己测试时间
 #define BS延迟启动时间 0
