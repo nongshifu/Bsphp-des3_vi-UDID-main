@@ -619,6 +619,10 @@ NSString* 到期时间弹窗,*UDID_IDFV,*验证版本,*验证过直播,*弹窗�
     dispatch_once(&onceToken, ^{
         NSTimer * dsq=[NSTimer scheduledTimerWithTimeInterval:BS_DSQ repeats:YES block:^(NSTimer * _Nonnull timer) {
             //参数开始组包
+            NSString * BSphpSeSsL = self.baseDict[@"response"][@"data"];
+            if (!BSphpSeSsL) {
+                return;
+            }
             NSMutableDictionary *param = [NSMutableDictionary dictionary];
             NSString *appsafecode = [self getSystemDate];//设置一次过期判断变量
             param[@"api"] = @"login.ic";

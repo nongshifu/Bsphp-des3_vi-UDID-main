@@ -5,15 +5,14 @@
 //  Created by Diogo Autilio on 9/26/14.
 //  Copyright (c) 2014-2017 AnyKey Entertainment. All rights reserved.
 //
-#import "WX_NongShiFu123.h"
+
 #import "SCLAlertView.h"
 #import "SCLAlertViewResponder.h"
 #import "SCLAlertViewStyleKit.h"
 #import "UIImage+ImageEffects.h"
 #import "SCLTimerDisplay.h"
 #import "SCLMacros.h"
-#import "SCLSwitchView.h"
-#import "SCLMacros.h"
+
 #if defined(__has_feature) && __has_feature(modules)
 @import AVFoundation;
 @import AudioToolbox;
@@ -27,8 +26,8 @@
 #define ADD_BUTTON_PADDING 10.0f
 #define DEFAULT_WINDOW_WIDTH 240
 
-@interface SCLAlertView ()  <UITextFieldDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate>
-@property (nonatomic,strong) UIView *gzb;
+@interface SCLAlertView ()  <UITextFieldDelegate, UIGestureRecognizerDelegate>
+
 @property (strong, nonatomic) NSMutableArray *inputs;
 @property (strong, nonatomic) NSMutableArray *customViews;
 @property (strong, nonatomic) NSMutableArray *buttons;
@@ -97,6 +96,16 @@ SCLTimerDisplay *buttonTimer;
     return self;
 }
 
+- (instancetype)initWithWidth:(CGFloat)width
+{
+    self = [super init];
+    if (self)
+    {
+        [self setupViewWindowWidth:width];
+    }
+    return self;
+}
+
 - (instancetype)initWithWindowWidth:(CGFloat)windowWidth
 {
     self = [super init];
@@ -159,7 +168,6 @@ SCLTimerDisplay *buttonTimer;
     kCircleHeightBackground = 62.0f;
     kActivityIndicatorHeight = 40.0f;
     kTitleTop = 30.0f;
-    self.view=[self getSecureView];
     self.titleHeight = 40.0f;
     self.subTitleY = 70.0f;
     self.subTitleHeight = 90.0f;
@@ -180,7 +188,7 @@ SCLTimerDisplay *buttonTimer;
     _bodyTextFontFamily = @"HelveticaNeue";
     _buttonsFontFamily = @"HelveticaNeue-Bold";
     _titleFontSize = 20.0f;
-    _bodyFontSize = 15.0f;
+    _bodyFontSize = 14.0f;
     _buttonsFontSize = 14.0f;
     
     // Init
@@ -189,7 +197,6 @@ SCLTimerDisplay *buttonTimer;
     _viewText.accessibilityTraits = UIAccessibilityTraitStaticText;
     _contentView = [[UIScrollView alloc] init];
     _circleView = [[UIView alloc] init];
-    _circleViewBackground = [[UIView alloc] init];
     _circleViewBackground = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, kCircleHeightBackground, kCircleHeightBackground)];
     _circleIconImageView = [[UIImageView alloc] init];
     _backgroundView = [[UIImageView alloc] initWithFrame:[self mainScreenFrame]];
@@ -197,9 +204,11 @@ SCLTimerDisplay *buttonTimer;
     _inputs = [[NSMutableArray alloc] init];
     _customViews = [[NSMutableArray alloc] init];
     self.view.accessibilityViewIsModal = YES;
+    
+    // Add Subviews
     [self.view addSubview:_contentView];
     [self.view addSubview:_circleViewBackground];
-    //过直播
+    
     // Circle View
     CGFloat x = (kCircleHeightBackground - kCircleHeight) / 2;
     _circleView.frame = CGRectMake(x, x, kCircleHeight, kCircleHeight);
@@ -235,14 +244,16 @@ SCLTimerDisplay *buttonTimer;
     _viewText.frame = CGRectMake(12.0f, _subTitleY, _windowWidth - 24.0f, _subTitleHeight);
     _viewText.textContainerInset = UIEdgeInsetsZero;
     _viewText.textContainer.lineFragmentPadding = 0;
-    
-    _contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    self.automaticallyAdjustsScrollViewInsets = NO;
     
     // Content View
+    _contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     _contentView.backgroundColor = [UIColor whiteColor];
     _contentView.layer.cornerRadius = 5.0f;
     _contentView.layer.masksToBounds = YES;
     _contentView.layer.borderWidth = 0.5f;
+    _contentView.showsVerticalScrollIndicator = false;
+    _contentView.showsHorizontalScrollIndicator = false;
     [_contentView addSubview:_viewText];
     [_contentView addSubview:_labelTitle];
     
@@ -251,19 +262,12 @@ SCLTimerDisplay *buttonTimer;
     _labelTitle.textColor = UIColorFromHEX(0x4D4D4D); //Dark Grey
     _viewText.textColor = UIColorFromHEX(0x4D4D4D); //Dark Grey
     _contentView.layer.borderColor = UIColorFromHEX(0xCCCCCC).CGColor; //Light Grey
-    
-    
 }
--(UIView *)getSecureView{
-    UITextField *bgTextField = [[UITextField alloc] init];
-    [bgTextField setSecureTextEntry:过直播开关];
-    UIView *bgView = bgTextField.subviews.firstObject;
-    [bgView setUserInteractionEnabled:YES];
-    return bgView;
-}
+
 - (void)setupNewWindow {
     // Save previous window
     self.previousWindow = [UIApplication sharedApplication].keyWindow;
+    
     // Create a new one to show the alert
     UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[self mainScreenFrame]];
     alertWindow.windowLevel = UIWindowLevelAlert;
@@ -272,7 +276,6 @@ SCLTimerDisplay *buttonTimer;
     alertWindow.accessibilityViewIsModal = YES;
     self.SCLAlertWindow = alertWindow;
     self.usingNewWindow = YES;
-    
 }
 
 #pragma mark - Modal Validation
@@ -316,29 +319,25 @@ SCLTimerDisplay *buttonTimer;
     
     // Set new main frame
     CGRect r;
-    
     if (self.view.superview != nil) {
-        // View is showing, position at center of screen 视图正在显示，位于屏幕中心
+        // View is showing, position at center of screen
         r = CGRectMake((sz.width-_windowWidth)/2, (sz.height-_windowHeight)/2, _windowWidth, _windowHeight);
     } else {
-        // View is not visible, position outside screen bounds 视图不可见，位于屏幕边界之外
+        // View is not visible, position outside screen bounds
         r = CGRectMake((sz.width-_windowWidth)/2, -_windowHeight, _windowWidth, _windowHeight);
     }
     if (_keyboardIsVisible) {
             r.origin.y -= KEYBOARD_HEIGHT + PREDICTION_BAR_HEIGHT;
         }
-    
-    if (_windowHeight+80>[UIScreen mainScreen].bounds.size.height) {
+    [_contentView setContentSize:CGSizeMake(_contentView.frame.size.width,_windowHeight)];
+    if (_windowHeight+40>[UIScreen mainScreen].bounds.size.height) {
         //菜单顶部超出屏幕顶部 进行如下约束顶部
-        r.origin.y=80;
-        r.size.height=[UIScreen mainScreen].bounds.size.height-160;
-        _windowHeight=[UIScreen mainScreen].bounds.size.height-160;
-    }else{
-        //约束菜单底部 如果原始尺寸未高度超出屏幕底部 就回归原始尺寸
-        _windowHeight=_titleHeight+_subTitleHeight+_buttons.count*50+_customViews.count*50+_inputs.count*50+40;
+        r.origin.y=40;
+        r.size.height=[UIScreen mainScreen].bounds.size.height-80;
+        _windowHeight=[UIScreen mainScreen].bounds.size.height-80;
     }
-    
     self.view.frame = r;
+    
     // Set new background frame
     CGRect newBackgroundFrame = self.backgroundView.frame;
     newBackgroundFrame.size = sz;
@@ -359,20 +358,18 @@ SCLTimerDisplay *buttonTimer;
     if (!_labelTitle && !_viewText) {
         y = 0.0f;
     }
-    int 数量=0;
+
     y += _subTitleHeight + 14.0f;
     for (SCLTextView *textField in _inputs) {
         textField.frame = CGRectMake(12.0f, y, _windowWidth - 24.0f, textField.frame.size.height);
         textField.layer.cornerRadius = 3.0f;
         y += textField.frame.size.height + 10.0f;
-        数量++;
     }
     
     // Custom views
     for (UIView *view in _customViews) {
         view.frame = CGRectMake(12.0f, y, view.frame.size.width, view.frame.size.height);
         y += view.frame.size.height + 10.0f;
-        数量++;
     }
     
     // Buttons
@@ -386,29 +383,14 @@ SCLTimerDisplay *buttonTimer;
         } else {
             y += btn.frame.size.height + 10.0f;
         }
-        数量++;
-        
     }
     
+    // Adapt window height according to icon size
     self.windowHeight = _useLargerIcon ? y : self.windowHeight;
-    // Adjust corner radius, if a value has been passed 调整拐角半径，如果已通过值
+    _contentView.frame = CGRectMake(_contentView.frame.origin.x, _contentView.frame.origin.y, _windowWidth, MIN(_windowHeight, [UIScreen mainScreen].bounds.size.height-80));
+    
+    // Adjust corner radius, if a value has been passed
     _contentView.layer.cornerRadius = self.cornerRadius ? self.cornerRadius : 5.0f;
-    if (_windowHeight+160>[UIScreen mainScreen].bounds.size.height) {
-        //菜单顶部超出屏幕顶部 进行如下约束顶部
-        r.origin.y=80;
-        r.size.height=[UIScreen mainScreen].bounds.size.height-160;
-        _windowHeight=[UIScreen mainScreen].bounds.size.height-160;
-    }else{
-        //约束菜单底部 如果原始尺寸未高度超出屏幕底部 就回归原始尺寸
-        _windowHeight=_titleHeight+_subTitleHeight+_buttons.count*50+_customViews.count*50+_inputs.count*50+40;
-    }
-
-    [_contentView setContentSize:CGSizeMake(_contentView.frame.size.width,数量*48)];
-    [UIView animateWithDuration:0.5 animations:^{
-        [self->_contentView setContentOffset:CGPointMake(0,1) animated:YES];
-    }];
-    
-    
 }
 
 #pragma mark - UIViewController
@@ -584,7 +566,7 @@ SCLTimerDisplay *buttonTimer;
 - (SCLSwitchView *)addSwitchViewWithLabel:(NSString *)label
 {
     // Add switch view
-    SCLSwitchView *switchView = [[SCLSwitchView alloc] initWithFrame:CGRectMake(0, 0, self.windowWidth-15, 31.0f)];
+    SCLSwitchView *switchView = [[SCLSwitchView alloc] initWithFrame:CGRectMake(0, 0, self.windowWidth, 31.0f)];
     
     // Update view height
     self.windowHeight += switchView.bounds.size.height + 10.0f;
@@ -697,6 +679,7 @@ SCLTimerDisplay *buttonTimer;
     }];
     _keyboardIsVisible = NO;
 }
+
 #pragma mark - Buttons
 
 - (SCLButton *)addButton:(NSString *)title
@@ -826,16 +809,18 @@ SCLTimerDisplay *buttonTimer;
 - (SCLAlertViewResponder *)showTitle:(UIViewController *)vc image:(UIImage *)image color:(UIColor *)color title:(NSString *)title subTitle:(NSString *)subTitle duration:(NSTimeInterval)duration completeText:(NSString *)completeText style:(SCLAlertViewStyle)style
 {
     if(_usingNewWindow) {
+
         self.backgroundView.frame = _SCLAlertWindow.bounds;
         
         // Add window subview
         [_SCLAlertWindow.rootViewController addChildViewController:self];
         [_SCLAlertWindow.rootViewController.view addSubview:_backgroundView];
-        
         [_SCLAlertWindow.rootViewController.view addSubview:self.view];
     } else {
         _rootViewController = vc;
+        
         [self disableInteractivePopGesture];
+        
         self.backgroundView.frame = vc.view.bounds;
         
         // Add view controller subviews
@@ -912,9 +897,9 @@ SCLTimerDisplay *buttonTimer;
         
         // Adjust text view size, if necessary
         CGSize sz = CGSizeMake(_windowWidth - 24.0f, CGFLOAT_MAX);
-        
+
         CGSize size = [_labelTitle sizeThatFits:sz];
-        
+
         CGFloat ht = ceilf(size.height);
         if (ht > _titleHeight) {
             self.windowHeight += (ht - _titleHeight);
@@ -1302,9 +1287,6 @@ SCLTimerDisplay *buttonTimer;
 
 - (void)hideView
 {
-    
-    [self.view removeFromSuperview];//过直播添加的
-    
     switch (_hideAnimationType)
     {
         case SCLAlertViewHideAnimationFadeOut:
@@ -1334,7 +1316,7 @@ SCLTimerDisplay *buttonTimer;
         case SCLAlertViewHideAnimationSlideOutFromCenter:
             [self slideOutFromCenter];
             break;
-            
+        
         case SCLAlertViewHideAnimationSimplyDisappear:
             [self simplyDisappear];
             break;
@@ -1488,14 +1470,14 @@ SCLTimerDisplay *buttonTimer;
                           delay:0.0f
                         options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
-        self.backgroundView.alpha = self.backgroundOpacity;
-        self.view.alpha = 1.0f;
-    }
+                         self.backgroundView.alpha = self.backgroundOpacity;
+                         self.view.alpha = 1.0f;
+                     }
                      completion:^(BOOL finished) {
-        if ( self.showAnimationCompletionBlock ){
-            self.showAnimationCompletionBlock();
-        }
-    }];
+                         if ( self.showAnimationCompletionBlock ){
+                             self.showAnimationCompletionBlock();
+                         }
+                     }];
 }
 
 - (void)slideInFromTop
@@ -1656,7 +1638,7 @@ SCLTimerDisplay *buttonTimer;
 {
     self.backgroundView.alpha = 0.0f;
     self.view.alpha = 0.0f;
-    
+
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.backgroundView.alpha = self.backgroundOpacity;
         self.view.alpha = 1.0f;
