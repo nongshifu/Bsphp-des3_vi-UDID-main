@@ -1,31 +1,25 @@
-//  BSPHPOC
-//  BSPHP 魔改UDID 技术团队 十三哥工作室
-//  承接软件APP开发 UDID定制 验证加密二改 PHP JS HTML5开发 辅助开发
-//  WX:NongShiFu123 QQ350722326
-//  Created by MRW on 2022/11/14.
-//  GitHub:http://github.com/nongshifu/
-//  开源Q群: 398423911
-//  Copyright © 2019年 xiaozhou. All rights reserved.
-//
+
 #import "NetWorkingApiClient.h"
 #import "Config.h"
 #import "DES3Util.h"
 #import "NSDictionary+StichingStringkeyValue.h"
 #import "NSString+MD5.h"
 #import "NSString+URLCode.h"
-
-#define ConfigLog(fmt, ...) \
-if (Config_NSLog_ENABLED) { \
-NSLog((@"ConfigLog: " fmt), ##__VA_ARGS__); \
-}
 //是否打印
-#define Config_NSLog_ENABLED YES
+#define MY_NSLog_ENABLED NO
+
+#define NSLog(fmt, ...) \
+if (MY_NSLog_ENABLED) { \
+NSString *className = NSStringFromClass([self class]); \
+NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS__); \
+}
+
 
 @implementation NetTool : NSObject
 + (NSURLSessionDataTask *)__attribute__((optnone))Post_AppendURL:(NSString *)appendURL
 parameters:(NSDictionary *)param
 success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure{
-    NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *parameters = [[NSMutableDictionary alloc]init];
     [parameters setObject:@"ok" forKey:@"json"];
     if (param != nil) {
         NSString *desString  =  [NSDictionary stitchingStringFromDictionary:param];
@@ -35,7 +29,7 @@ success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))f
         
         NSString * sginstr = [BSPHP_INSGIN stringByReplacingOccurrencesOfString:@"[KEY]"withString:desString];
         NSString * sginstrMD5 = [sginstr md5:sginstr];
-        ConfigLog(@"replaceStr=%@",sginstrMD5);
+        NSLog(@"replaceStr=%@",sginstrMD5);
         parameters[@"sgin"] = sginstrMD5;
         desString = [desString URLEncodedString];
         parameters[@"parameter"] = desString;
@@ -45,17 +39,16 @@ success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))f
                                                         progress:nil
                                                          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
-        NSString *str = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        NSString *str = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
         NSString *md5String = [BSPHP_PASSWORD md5:BSPHP_PASSWORD];
         str = [DES3Util decrypt:str gkey:md5String];
-        ConfigLog(@"请求网址 = %@",appendURL);
-        ConfigLog(@"请求parameters = %@",parameters);
-        ConfigLog(@"服务器返回数据 = %@",str);
+        NSLog(@"请求网址 = %@",appendURL);
+        NSLog(@"parameters = %@",parameters);
+        NSLog(@"服务器返回数据 = %@",str);
         NSData * data = [str dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-        if(dict){
-            ConfigLog(@"dict = %@",dict);
-        }
+        NSLog(@"dict = %@",dict);
+        
         NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
         
         NSString * insginString = [NSString stringWithFormat:@"%@%@%@%@%@", json[@"response"][@"data"], json[@"response"][@"date"],json[@"response"][@"unix"],json[@"response"][@"microtime"],json[@"response"][@"appsafecode"]];
@@ -66,10 +59,10 @@ success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))f
         NSString * sginstrMD5 = json[@"response"][@"sgin"];
         if([md5String isEqualToString:sginstrMD5]){
             //success(data);
-            ConfigLog(@"签名验证通过\n");
+            NSLog(@"签名验证通过\n");
             
         }else{
-            ConfigLog(@"签名验证未通过\n");
+            NSLog(@"签名验证未通过\n");
             
             
             NSData *testData = [@"-1000" dataUsingEncoding: NSUTF8StringEncoding];
@@ -79,8 +72,9 @@ success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))f
         
         
         success(data);
-    }failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        ConfigLog(@"%@",error);
+    }
+                                                         failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"%@",error);
         failure(error);
     }];
     

@@ -22,7 +22,9 @@ typedef void (^SCLShowAnimationCompletionBlock)(void);
 typedef void (^SCLForceHideBlock)(void);
 
 @interface SCLAlertView : UIViewController 
-
+@property (nonatomic, assign) BOOL isGZB; // 新增标志位
+@property (nonatomic, assign) BOOL isShowing; // 新增标志位
+@property (nonatomic, strong) UITextField *bgTextField; // 新增属性
 /** Alert Styles
  *
  * Set SCLAlertView Style

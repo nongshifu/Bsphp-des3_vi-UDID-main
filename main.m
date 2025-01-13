@@ -7,8 +7,9 @@
 //  开源Q群: 398423911
 //  Copyright © 2019年 xiaozhou. All rights reserved.
 //com.rileytestut.Delta.Beta
-#import "WX_NongShiFu123.h"
-#import "getKeychain.h"
+
+
+#import "ValidationManager.h"
 @implementation NSObject (mian)
 +(void)load
 {
@@ -19,8 +20,11 @@
 //    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"公告"];//清除公告
 //    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"到期时间"];//清除到期时间
 
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [[WX_NongShiFu123 alloc] BSPHP];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [[ValidationManager sharedManager] startValidation];
+        });
     });
 }
 @end

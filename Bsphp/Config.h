@@ -9,19 +9,18 @@
 //
 #import <Foundation/Foundation.h>
 
-#import <Foundation/Foundation.h>
 
 
 //服务器地址
-#define  BSPHP_HOST  @"https://myradar.cn/AppEn.php?appid=66666666&m=3a9d8b17c0a10b1b77f0544d35e835fa"
+#define  BSPHP_HOST  @"https://myradar.cn/AppEn.php?appid=98737489&m=e295119ebfd1efb244f9cc3dd45568d1"
 //通信认证Key
-#define BSPHP_MUTUALKEY @"417a696c5ee663c14bc6fa48b3f53d51"
+#define BSPHP_MUTUALKEY @"606951e92bbfeace83417f5508d1fe14"
 //接收Sgin验证 注意必须填写 并且有[KEY]
-#define BSPHP_INSGIN @"[KEY]AGFAWGHRNB"
+#define BSPHP_INSGIN @"[KEY]SGFAGAEGRERG"
 //输出Sgin验证 注意必须填写 并且有[KEY]
-#define BSPHP_TOSGIN @"[KEY]ASGAEFARG"
+#define BSPHP_TOSGIN @"[KEY]SGFAGAEGRERG"
 //数据加密密码
-#define BSPHP_PASSWORD @"3Trq3vJCYh6sTLAP6b"
+#define BSPHP_PASSWORD @"zIXeKKgKCNeJMmAKzq"
 
 //版本 和软件配置版本号一致 发布新版的时候 修改软件配置的版本号并且在URL那填写下载地址即可 客户端会弹出更新 确定会跳转浏览器下载
 #define JN_VERSION @"v1.0"
@@ -37,16 +36,8 @@
 #define  UDID_HOST  @"https://myradar.cn/udid/"
 
 //启动APP后多少秒开始验证 单位秒 ** 因为很多游戏有启动画面 启动动画 会刷新UI 刷掉弹窗 相当于没了验证 比如光遇 王者荣耀 等 要等启动动画结束才弹窗 自己测试时间
-#define BS延迟启动时间 0
+#define BS延迟启动时间 1
 
-
-
-#define MyLog(fmt, ...) \
-if (MY_NSLog_ENABLED) { \
-NSLog((@"MyLog: " fmt), ##__VA_ARGS__); \
-}
-//是否打印
-#define MY_NSLog_ENABLED YES
 
 /*以下参数 填写在BSPHP后台对应的软件设置-软件描述处 每个功能一个换行 切记 参数为BOOL 值 YES 或NO 大写 顺序不能错源码写死了 复制粘贴即可 具体看 参数填写说明 图
  到期时间弹窗:YES
@@ -123,7 +114,6 @@ NSLog((@"MyLog: " fmt), ##__VA_ARGS__); \
  *** 推荐 大多情况下 验证系统目的是为了绑定设备 因此多开机器量设置为-1 关闭 然后软件 设置-是否绑定模式:验证绑定特征 这样防止卡密倒卖 在A设备激活绑定后 无法在设备B激活
  *** 因为如果 设置-是否绑定模式:免验证绑定特征 那么即使多开设为1 多开设备也为1 但是可以错开时间使用 比如早上小学生A在A设备玩 下午B小学生在B设备玩 因为错开 不会被迫下线
  */
-
 
 @interface NetTool : NSObject
 

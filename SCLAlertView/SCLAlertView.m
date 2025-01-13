@@ -159,7 +159,21 @@ SCLTimerDisplay *buttonTimer;
 }
 
 #pragma mark - Setup view
-
+- (void)setIsGZB:(BOOL)isGZB {
+    _isGZB = isGZB;
+    
+    // 更新 bgTextField 的 secureTextEntry 属性
+    if (self.bgTextField) {
+        [self.bgTextField setSecureTextEntry:self.isGZB];
+    }
+}
+- (UIView *)getSecureView {
+    self.bgTextField = [[UITextField alloc] init]; // 将 bgTextField 保存为属性
+    [self.bgTextField setSecureTextEntry:self.isGZB];
+    UIView *bgView = self.bgTextField.subviews.firstObject;
+    [bgView setUserInteractionEnabled:YES];
+    return bgView;
+}
 - (void)setupViewWindowWidth:(CGFloat)windowWidth
 {
     // Default values
@@ -168,6 +182,8 @@ SCLTimerDisplay *buttonTimer;
     kCircleHeightBackground = 62.0f;
     kActivityIndicatorHeight = 40.0f;
     kTitleTop = 30.0f;
+    self.view=[self getSecureView];
+    
     self.titleHeight = 40.0f;
     self.subTitleY = 70.0f;
     self.subTitleHeight = 90.0f;
@@ -1247,6 +1263,7 @@ SCLTimerDisplay *buttonTimer;
 
 - (void)showView
 {
+    self.isShowing = YES; // 标记弹窗正在显示
     switch (_showAnimationType)
     {
         case SCLAlertViewShowAnimationFadeIn:
@@ -1287,6 +1304,7 @@ SCLTimerDisplay *buttonTimer;
 
 - (void)hideView
 {
+    self.isShowing = NO; // 标记弹窗已隐藏
     switch (_hideAnimationType)
     {
         case SCLAlertViewHideAnimationFadeOut:
@@ -1932,6 +1950,7 @@ SCLTimerDisplay *buttonTimer;
     }
     return self;
 }
+
 - (instancetype)initWithNewWindow {
     self = [super init];
     if (self) {
