@@ -38,7 +38,7 @@ static NSString *const kEncryptionKey = @"Ysdgarsgwge4qgfaqg2gfwa";
 // 本地化存储函数
 + (void)saveModelToLocal:(AppInfo *)appInfo withExtensionSeconds:(NSTimeInterval)seconds {
     // 使用YYModel将模型转为字典
-    NSDictionary *modelDict = [appInfo yy_modelToJSONObject];
+    NSDictionary *modelDict = [appInfo mj_keyValues];
     // 将不可变字典转为可变字典，以便后续修改元素
     NSMutableDictionary *mutableModelDict = [modelDict mutableCopy];
     // 根据传入的秒数延长下次验证时间，使用北京时间获取当前时间并进行时间计算
@@ -90,7 +90,7 @@ static NSString *const kEncryptionKey = @"Ysdgarsgwge4qgfaqg2gfwa";
                 [userDefaults synchronize];
                 
                 // 使用YYModel将字典转为模型
-                AppInfo *model = [AppInfo yy_modelWithDictionary:modelDict];
+                AppInfo *model = [AppInfo mj_objectWithKeyValues:modelDict];
                 
                 // 获取当前服务器时间
                 NSDate *currentServerTime = [self fetchCurrentServerTime];

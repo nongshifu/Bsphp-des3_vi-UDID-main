@@ -7,11 +7,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "YYModel.h"
+#import "MJExtension.h"
 #import "NSString+MD5.h"
 #import "NSString+URLCode.h"
 #import "DES3Util.h"
-
+#import <CoreData/CoreData.h>
 //是否打印
 #define MY_NSLog_ENABLED YES
 
@@ -23,33 +23,33 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
 
 
 //UIDI存储key
-#define BS_UDID @"ergewgrergvstrrrveg"
+#define BS_UDID @"ergewgrergvfsstrrrveg"
 
 //卡密存储key
-#define BS_KAMI_KEY @"ergewhrthrfagrgfgrge"
+#define BS_KAMI_KEY @"ergewhrtdhsrfagrgfgrge"
 
 //离线存储key
-#define BS_Local_Config @"rtggrdffarn"
+#define BS_Local_Config @"rtgggrfdffarn"
 
 //到期时间KEY
-#define BS_EXP_Time @"hwgertyjyhrg"
+#define BS_EXP_Time @"hwgertyssjyhrg"
 
 //是否已经弹出过到期时间
-#define BS_DQTC @"jtehrgefgbwrth"
+#define BS_DQTC @"jtehrgefgsgbwrth"
 
 
 //软件公告
-#define BS_GG @"gonggaoagg"
+#define BS_GG @"gonggsaoafgg"
 
 
 //随机ID
-#define BS_SJID @"BS_SJIDdafs"
+#define BS_SJID @"BS_SgJIDsdafs"
 
 //版本弹窗
-#define BS_BBTC @"BS_BBTCs"
+#define BS_BBTC @"BS_BsBTfCs"
 
 //离线缓存
-#define BS_LOCAL_SAVE_KEY  @"asgfaggta131"
+#define BS_LOCAL_SAVE_KEY  @"asgfagssgta131"
 
 NS_ASSUME_NONNULL_BEGIN
 

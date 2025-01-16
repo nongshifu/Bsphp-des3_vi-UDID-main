@@ -12,7 +12,7 @@
 
 
 //服务器地址
-#define  BSPHP_HOST  @"http://new.tancx.com/AppEn.php?appid=66666666&m=3a9d8b17c0a10b1b77f0544d35e835fa"
+#define  BSPHP_HOST  @"https://new.tancx.com/AppEn.php?appid=66666666&m=3a9d8b17c0a10b1b77f0544d35e835fa"
 //通信认证Key
 #define BSPHP_MUTUALKEY @"417a696c5ee663c14bc6fa48b3f53d51"
 //接收Sgin验证 注意必须填写 并且有[KEY]
