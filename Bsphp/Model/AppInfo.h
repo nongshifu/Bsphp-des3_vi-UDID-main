@@ -11,6 +11,7 @@
 #import "NSString+MD5.h"
 #import "NSString+URLCode.h"
 #import "DES3Util.h"
+
 //是否打印
 #define MY_NSLog_ENABLED YES
 
@@ -22,33 +23,33 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
 
 
 //UIDI存储key
-#define BS_UDID @"myBSUDID"
+#define BS_UDID @"ergewgrergvstrrrveg"
 
 //卡密存储key
-#define BS_KAMI_KEY @"myBSKAMI"
+#define BS_KAMI_KEY @"ergewhrthrfagrgfgrge"
 
 //离线存储key
-#define BS_Local_Config @"BSLocalConfig"
+#define BS_Local_Config @"rtggrdffarn"
 
 //到期时间KEY
-#define BS_EXP_Time @"BSEXPTime"
+#define BS_EXP_Time @"hwgertyjyhrg"
 
 //是否已经弹出过到期时间
-#define BS_DQTC @"DQTC"
+#define BS_DQTC @"jtehrgefgbwrth"
 
 
 //软件公告
-#define BS_GG @"gonggao"
+#define BS_GG @"gonggaoagg"
 
 
 //随机ID
-#define BS_SJID @"BS_SJID"
+#define BS_SJID @"BS_SJIDdafs"
 
 //版本弹窗
-#define BS_BBTC @"BS_BBTC"
+#define BS_BBTC @"BS_BBTCs"
 
 //离线缓存
-#define BS_LOCAL_SAVE_KEY  @"encryptedModelData"
+#define BS_LOCAL_SAVE_KEY  @"asgfaggta131"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -103,7 +104,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,assign) BOOL 支持解绑;
 @property (nonatomic,assign) BOOL 黑名单检测;
 @property (nonatomic,assign) BOOL 是否强制版本更新;
-
+@property (nonatomic,assign) BOOL 是否三指双击显示到期时间;
+@property (nonatomic,assign) BOOL 是否验证特征码一致;
 // 读取模型并判断是否超过时间以及是否到期的函数，通过闭包返回结果
 + (void)readModelAndCheckTimeWithCompletion:(void (^)(BOOL needVerify, AppInfo * _Nullable appInfo, BOOL isExpired))completion;
 // 本地化存储函数

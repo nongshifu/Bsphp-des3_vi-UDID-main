@@ -16,7 +16,8 @@
 #import <AdSupport/ASIdentifierManager.h>
 #import "BSPHPAPI.h"
 #import "SCLAlertView.h"
-
+#import "SecureStorageKEY.h"
+#import "SVProgressHUD.h"
 //是否打印
 #define MY_NSLog_ENABLED YES
 
@@ -46,38 +47,43 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
         _alertQueue = [NSMutableArray array];
         _appInfo = [BSPHPAPI sharedAPI].appInfo;
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:BS_BBTC];
+        // 添加三指双击手势识别器
+        [self setupThreeFingerDoubleTapGesture];
     }
     return self;
 }
 
+#pragma mark - 三指双击手势
 
+- (void)setupThreeFingerDoubleTapGesture {
+    // 创建三指双击手势识别器
+    self.threeFingerDoubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleThreeFingerDoubleTap:)];
+    self.threeFingerDoubleTapGesture.numberOfTapsRequired = 2; // 双击
+    self.threeFingerDoubleTapGesture.numberOfTouchesRequired = 3; // 三指
+    self.threeFingerDoubleTapGesture.delaysTouchesBegan = YES;
+    self.threeFingerDoubleTapGesture.delaysTouchesEnded = YES;
+    
+    // 将手势识别器添加到主窗口
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    [window addGestureRecognizer:self.threeFingerDoubleTapGesture];
+}
+
+- (void)handleThreeFingerDoubleTap:(UITapGestureRecognizer *)gesture {
+    if (gesture.state == UIGestureRecognizerStateRecognized) {
+        if(!self.isSuccess || !self.appInfo.是否三指双击显示到期时间)return;
+        // 显示弹窗
+        [self showAlertWithTitle:@"到期时间" message:self.appInfo.到期时间 exitOnDismiss:NO];
+    }
+}
 #pragma mark --- 验证流程
 
-//开始验证
 //开始验证
 - (void)startValidation {
     //进入验证环节 输入状态
     [self transitionToState:ValidationStateInitial];
     //启动定时器恢复弹窗流程
     [self startStateCheckTimer];
-    // 5秒后 模拟弹出一个控制器 覆盖掉弹窗 看弹窗是否重新弹出到这个控制器顶层
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        UIViewController *coverViewController = [[UIViewController alloc] init];
-        coverViewController.view.backgroundColor = [UIColor whiteColor];
-        UIViewController *topViewController = [self topViewController];
-        if ([topViewController isKindOfClass:[UIAlertController class]]) {
-            // 如果当前显示的是弹窗，先关闭它
-            [topViewController dismissViewControllerAnimated:YES completion:^{
-                [topViewController presentViewController:coverViewController animated:YES completion:^{
-                    NSLog(@"已弹出覆盖控制器");
-                }];
-            }];
-        } else {
-            // 直接显示覆盖控制器
-            UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-            [rootViewController presentViewController:coverViewController animated:YES completion:nil];
-        }
-    });
+    
 }
 
 //流程图
@@ -181,8 +187,8 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
         [self transitionToState:ValidationStateGetBSphpSeSsL];
     } else {
         // 网络不可用，显示弹窗并退出
-       
-//        [self showAlertWithTitle:@"网络不可用" message:@"请检查网络连接" exitOnDismiss:NO];
+        
+        //        [self showAlertWithTitle:@"网络不可用" message:@"请检查网络连接" exitOnDismiss:NO];
         
     }
 }
@@ -194,9 +200,10 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
             // 获取成功，进入获取远程配置信息状态
             self.baseDict = response;
             [self transitionToState:ValidationStateGetRemoteConfig];
+            
         } else {
             // 获取失败，显示错误弹窗
-            [self showAlertWithTitle:@"错误" message:@"无法获取 BSphpSeSsL" exitOnDismiss:YES];
+            [self showAlertWithTitle:@"错误" message:@"无法获取 BSphpSeSsL" exitOnDismiss:NO];
         }
     }];
 }
@@ -221,7 +228,7 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
             
         } else {
             // 获取失败，显示错误弹窗
-            [self showAlertWithTitle:@"错误" message:@"无法获取远程配置信息" exitOnDismiss:YES];
+            [self showAlertWithTitle:@"错误" message:@"无法获取远程配置信息" exitOnDismiss:NO];
         }
     }];
 }
@@ -233,14 +240,47 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
         NSLog(@"使用 UDID");
         [[BSPHPAPI sharedAPI] getUDIDWithCompletion:^(id response, NSError *error) {
             if (response) {
-                self.deviceCode = (NSString *)response;
-                NSLog(@"获取设备码成功:%@",self.deviceCode);
-                [[NSUserDefaults standardUserDefaults] setObject:self.deviceCode forKey:BS_UDID];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-                [self transitionToState:ValidationStateVerifyBan];
+                NSString *str = (NSString *)response;
+                if(str.length<5){
+                    [self showAlertWithTitle:@"机器码获取失败" message:nil actionHandler:^{
+                        exit(0);
+                    }];
+                }
+                if([str containsString:@"404"]){
+                    [self showAlertWithTitle:@"安装描述文件" message:@"请安装描述文件获取设备码" confirmButtonTitle:@"确定安装" cancelHandler:^{
+                        exit(0);
+                    } confirmHandler:^{
+                        //请求的url
+                        
+                        NSDictionary *dict = [[NSBundle mainBundle] infoDictionary];
+                        NSArray *urlTypes = dict[@"CFBundleURLTypes"];
+                        NSString *urlSchemes = nil;
+                        //读取APP的跳转URL
+                        for (NSDictionary *scheme in urlTypes) {
+                            urlSchemes = scheme[@"CFBundleURLSchemes"][0];
+                        }
+                        
+                        NSArray *strarr = [BSPHP_HOST componentsSeparatedByString:@"appid="];
+                        NSArray *strarr2 = [strarr[1] componentsSeparatedByString:@"&m="];
+                        NSString* daihao=strarr2[0];
+                        NSString* suijiid = [[NSUserDefaults standardUserDefaults] objectForKey:BS_SJID];
+                        NSString*url=[NSString stringWithFormat:@"%@udid.php?id=%@&openurl=%@&daihao=%@",UDID_HOST,suijiid,urlSchemes,daihao];
+                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url] options:@{} completionHandler:^(BOOL success) {
+                            exit(0);
+                        }];
+                        
+                    }];
+                }else{
+                    self.deviceCode = (NSString *)response;
+                    NSLog(@"获取设备码成功:%@",self.deviceCode);
+                    [[NSUserDefaults standardUserDefaults] setObject:self.deviceCode forKey:BS_UDID];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    [self transitionToState:ValidationStateVerifyBan];
+                }
+                
             } else {
                 NSLog(@"获取设备码失败:%@",error);
-                [self showAlertWithTitle:@"错误" message:@"无法获取设备码" exitOnDismiss:YES];
+                [self showAlertWithTitle:@"错误" message:@"无法获取设备码" exitOnDismiss:NO];
             }
         }];
     } else {
@@ -248,13 +288,20 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
         NSLog(@"DFV");
         [[BSPHPAPI sharedAPI] getIDFVWithCompletion:^(id response, NSError *error) {
             if (response) {
+                NSString *str = (NSString *)response;
+                if(str.length<5){
+                    [self showAlertWithTitle:@"机器码获取失败" message:nil actionHandler:^{
+                        exit(0);
+                    }];
+                }
                 self.deviceCode = (NSString *)response;
                 [[NSUserDefaults standardUserDefaults] setObject:self.deviceCode forKey:BS_UDID];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 
                 [self transitionToState:ValidationStateVerifyBan];
+                
             } else {
-                [self showAlertWithTitle:@"错误" message:@"无法获取设备码" exitOnDismiss:YES];
+                [self showAlertWithTitle:@"错误" message:@"无法获取设备码" exitOnDismiss:NO];
             }
         }];
     }
@@ -268,7 +315,8 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
         [[BSPHPAPI sharedAPI] shiyongWithUDID:self.deviceCode completion:^(id response, NSError *error) {
             if (response) {
                 NSString *str = (NSString*)response;
-                if ([str containsString:@"|1081|"]) {
+                BOOL status = [response rangeOfString:@"|1081|" options:NSCaseInsensitiveSearch].location != NSNotFound;
+                if (status) {
                     NSLog(@"试用成功，进入验证卡密状态km:%@",self.licenseKey);
                     NSArray *arr = [response componentsSeparatedByString:@"|"];
                     //保存服务器机器码属性
@@ -317,32 +365,35 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
     }else{
         // 用户输入卡密后调用验证接口
         NSLog(@"用户输入卡密后调用验证接口");
-        
+        [SVProgressHUD showWithStatus:@"验证中-请稍后"];
         [[BSPHPAPI sharedAPI] yanzhengAndUseIt:self.licenseKey completion:^(id response, NSError *error) {
-            if(!response || ![response containsString:@"|1081|"] || error){
+            [SVProgressHUD dismiss];
+            BOOL status = [response rangeOfString:@"|1081|" options:NSCaseInsensitiveSearch].location != NSNotFound;
+            if(status){
+                NSArray *arr = [response componentsSeparatedByString:@"|"];
+                //保存服务器机器码属性
+                self.seversUDID = arr[2];
+                //保存到期时间属性
+                self.appInfo.到期时间 = arr[4];
+                //离线配置
+                self.appInfo.软件公告 = self.appInfo.软件公告;
+                //存储离线配置
+                [AppInfo saveModelToLocal:self.appInfo withExtensionSeconds:[self.appInfo.逻辑A内容 floatValue]];
+                //储存最新卡密
+                [[NSUserDefaults standardUserDefaults] setObject:self.licenseKey forKey:BS_KAMI_KEY];
+                
+                [[NSUserDefaults standardUserDefaults] synchronize];
+                //判断机器码是否相符
+                [self transitionToState:ValidationStateCheckDeviceCodeMatch];
+            }else{
                 [self deleteCache];
                 // 验证失败，显示错误弹窗
                 [self showAlertWithTitle:@"验证错误" message:[NSString stringWithFormat:@"%@", error ?error : response] actionHandler:^{
                     [self transitionToState:ValidationStateDisplayInputBox];
                 }];
-                return;
+                
             }
             
-            NSArray *arr = [response componentsSeparatedByString:@"|"];
-            //保存服务器机器码属性
-            self.seversUDID = arr[2];
-            //保存到期时间属性
-            self.appInfo.到期时间 = arr[4];
-            //离线配置
-            self.appInfo.软件公告 = self.appInfo.软件公告;
-            //存储离线配置
-            [AppInfo saveModelToLocal:self.appInfo withExtensionSeconds:[self.appInfo.逻辑A内容 floatValue]];
-            //储存最新卡密
-            [[NSUserDefaults standardUserDefaults] setObject:self.licenseKey forKey:BS_KAMI_KEY];
-            
-            [[NSUserDefaults standardUserDefaults] synchronize];
-            //判断机器码是否相符
-            [self transitionToState:ValidationStateCheckDeviceCodeMatch];
         }];
     }
     
@@ -410,7 +461,7 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
                     [self showAlertWithTitle:@"下线提示" message:@"您的卡密在其他设备登录\n或者卡密多开设备已达上限" actionHandler:^{
                         exit(0);
                     }];
-
+                    
                 }
                 
             }
@@ -435,47 +486,40 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
                 //执行版本检核
                 [self transitionToState:ValidationStateVersionVerification];
             }
-
+            
         }];
     }
     
     
 }
 
-//9. 完成状态
-- (void)handleFinishedState {
-    // 验证完成，启动应用功能
-    NSLog(@"验证完成，启动应用功能");
-    self.isSuccess = YES;
-    //启动心跳定时器
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [self transitionToState:ValidationStateTimeVerify];
-    });
-}
 
 //10.显示卡密输入框
 - (void)showInputAlert {
     self.isSuccess = NO;
     // 创建弹窗
-    NSString *cancelButtonTitle;
     if (self.appInfo.软件网页地址.length>0) {
-        cancelButtonTitle =@"购买";
+        [self showAlertWithTitle:@"请输入激活码" message:nil textFieldPlaceholder:@"请输入卡密激活码" confirmButtonTitle:@"确定" cancelButtonTitle:@"购买"
+                   cancelHandler:^{
+            if (self.appInfo.软件网页地址.length>0) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.appInfo.软件网页地址] options:@{} completionHandler:^(BOOL success) {}];
+            }
+            [self transitionToState:ValidationStateDisplayInputBox];
+        } confirmHandler:^(NSString * _Nullable inputText) {
+            self.licenseKey = inputText;
+            NSLog(@"输入了卡密:%@",self.licenseKey);
+            [[NSUserDefaults standardUserDefaults] setObject:self.licenseKey forKey:BS_KAMI_KEY];
+            [self transitionToState:ValidationStateVerifyLicense];
+        }];
     }else{
-        cancelButtonTitle =@"粘贴";
+        [self showAlertWithTitle:@"请输入激活码" message:nil textFieldPlaceholder:@"请输入卡密激活码" confirmButtonTitle:@"确定" confirmHandler:^(NSString * _Nullable inputText) {
+            self.licenseKey = inputText;
+            NSLog(@"输入了卡密:%@",self.licenseKey);
+            [[NSUserDefaults standardUserDefaults] setObject:self.licenseKey forKey:BS_KAMI_KEY];
+            [self transitionToState:ValidationStateVerifyLicense];
+        }];
     }
-    [self showAlertWithTitle:@"请输入激活码" message:nil textFieldPlaceholder:@"请输入卡密激活码" confirmButtonTitle:@"确定" cancelButtonTitle:cancelButtonTitle cancelHandler:^{
-        if (self.appInfo.软件网页地址.length>0) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.appInfo.软件网页地址] options:@{} completionHandler:^(BOOL success) {
-                [self transitionToState:ValidationStateDisplayInputBox];
-            }];
-        }
-    } confirmHandler:^(NSString * _Nullable inputText) {
-        self.licenseKey = inputText;
-        NSLog(@"输入了卡密:%@",self.licenseKey);
-        [[NSUserDefaults standardUserDefaults] setObject:self.licenseKey forKey:BS_KAMI_KEY];
-        [self transitionToState:ValidationStateVerifyLicense];
-    }];
+    
     
 }
 
@@ -538,7 +582,10 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
 //12.公告检测
 - (void)GongGaoVerification {
     NSLog(@"开始公告检测...");
-    
+    if(self.appInfo.软件公告.length ==0){
+        [self transitionToState:ValidationStateVersionVerification];
+        return;
+    }
     //如果需要弹公告 那么仅执行一次公告清除 方便后面逻辑弹出
     if (self.appInfo.公告弹窗) {
         static dispatch_once_t onceToken;
@@ -594,55 +641,59 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
 //13.验证机器码解绑操作
 - (void)checkDeviceCodeMatch {
     NSLog(@"开始判断机器码是否一致...");
-    // 判断机器码是否相符
-    if (![self.seversUDID containsString:self.deviceCode]) {
-        NSLog(@"机器码不一致：本机机器码 = %@, 服务器机器码 = %@", self.deviceCode, self.seversUDID);
-        
-        if (self.appInfo.支持解绑) {
-            NSLog(@"当前支持自主解绑");
-            NSString *message = [NSString stringWithFormat:@"本机机器码\n%@\n卡密绑定机器码\n%@\n当前支持自主解绑\n解绑扣除:(%ld)秒", self.deviceCode, self.seversUDID, self.appInfo.解绑扣除时间];
+    if(self.appInfo.是否验证特征码一致){
+        // 判断机器码是否相符
+        if (![self.seversUDID containsString:self.deviceCode]) {
+            NSLog(@"机器码不一致：本机机器码 = %@, 服务器机器码 = %@", self.deviceCode, self.seversUDID);
             
-            [self showAlertWithTitle:@"绑定机器码和本机不符"
-                             message:message
-                  confirmButtonTitle:@"确定解绑"
-                       cancelHandler:^{
-                NSLog(@"用户点击了取消按钮");
-                // 这里可以执行取消后的逻辑 闪退
-                exit(0);
-            } confirmHandler:^{
-                NSLog(@"用户点击了同意解绑按钮 进入解绑流程");
-                // 这里可以执行确定后的逻辑
-                [self transitionToState:ValidationStateVerifyUnbind];
+            if (self.appInfo.支持解绑) {
+                NSLog(@"当前支持自主解绑");
+                NSString *message = [NSString stringWithFormat:@"本机机器码\n%@\n卡密绑定机器码\n%@\n当前支持自主解绑\n解绑扣除:(%ld)秒", self.deviceCode, self.seversUDID, self.appInfo.解绑扣除时间];
                 
-            }];
+                [self showAlertWithTitle:@"绑定机器码和本机不符"
+                                 message:message
+                      confirmButtonTitle:@"确定解绑"
+                           cancelHandler:^{
+                    NSLog(@"用户点击了取消按钮");
+                    // 这里可以执行取消后的逻辑 闪退
+                    exit(0);
+                } confirmHandler:^{
+                    NSLog(@"用户点击了同意解绑按钮 进入解绑流程");
+                    // 这里可以执行确定后的逻辑
+                    [self transitionToState:ValidationStateVerifyUnbind];
+                    
+                }];
+            } else {
+                NSLog(@"不支持自主解绑，需联系管理员");
+                NSString *message = [NSString stringWithFormat:@"本机机器码\n%@\n卡密绑定机器码\n%@\n联系管理员解绑\n解绑扣除:(%ld)秒", self.deviceCode, self.seversUDID, self.appInfo.解绑扣除时间];
+                
+                [self showAlertWithTitle:@"绑定机器码和本机不符"
+                                 message:message
+                      confirmButtonTitle:@"复制解绑信息"
+                           cancelHandler:^{
+                    NSLog(@"用户点击了取消按钮");
+                    // 这里可以执行取消后的逻辑
+                    exit(0);
+                } confirmHandler:^{
+                    NSLog(@"用户点击了复制信息按钮");
+                    // 这里可以执行确定后的逻辑
+                    // 获取系统剪贴板
+                    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+                    // 将字符串拷贝到剪贴板
+                    [pasteboard setString:message];
+                    
+                    [self showAlertWithTitle:@"绑定信息已复制" message:@"联系管理员解绑" exitOnDismiss:YES];
+                }];
+            }
         } else {
-            NSLog(@"不支持自主解绑，需联系管理员");
-            NSString *message = [NSString stringWithFormat:@"本机机器码\n%@\n卡密绑定机器码\n%@\n联系管理员解绑\n解绑扣除:(%ld)秒", self.deviceCode, self.seversUDID, self.appInfo.解绑扣除时间];
+            NSLog(@"机器码一致：本机机器码 = %@, 服务器机器码 = %@", self.deviceCode, self.seversUDID);
+            //进入到期时间弹窗逻辑
+            [self transitionToState:ValidationStateDisplayExpTimeAlear];
             
-            [self showAlertWithTitle:@"绑定机器码和本机不符"
-                             message:message
-                  confirmButtonTitle:@"复制解绑信息"
-                       cancelHandler:^{
-                NSLog(@"用户点击了取消按钮");
-                // 这里可以执行取消后的逻辑
-                exit(0);
-            } confirmHandler:^{
-                NSLog(@"用户点击了复制信息按钮");
-                // 这里可以执行确定后的逻辑
-                // 获取系统剪贴板
-                UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-                // 将字符串拷贝到剪贴板
-                [pasteboard setString:message];
-                
-                [self showAlertWithTitle:@"绑定信息已复制" message:@"联系管理员解绑" exitOnDismiss:YES];
-            }];
         }
-    } else {
-        NSLog(@"机器码一致：本机机器码 = %@, 服务器机器码 = %@", self.deviceCode, self.seversUDID);
-        //进入到期时间弹窗逻辑
-        [self transitionToState:ValidationStateDisplayExpTimeAlear];
-        
     }
+    
+    
 }
 
 //14. 显示到期时间弹窗
@@ -673,7 +724,7 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
         if (!判断是否已经弹窗过 || ![bd_BS_EXP_Time isEqualToString:self.appInfo.到期时间]) {
             NSLog(@"需要弹窗：未弹窗过或到期时间发生变化");
             [self showAlertWithTitle:@"验证成功-到期时间" message:self.appInfo.到期时间 actionHandler:^{
-               
+                
                 // 验证成功，公告
                 [self transitionToState:ValidationStateDisplayGongGao];
             }];
@@ -768,274 +819,376 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
     }];
 }
 
-
+#pragma mark --- 验证成功会执行这里 调用你的功能 因为支持断网使用app 因此 你的特殊功能放这里启动
+- (void)handleFinishedState {
+    // 验证完成，启动应用功能
+    NSLog(@"验证完成，启动应用功能");
+    self.isSuccess = YES;
+    //单例模式启动 防止启动心跳定时器重复调用功能
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        //启动心跳定时验证
+        [self transitionToState:ValidationStateTimeVerify];
+        //在则启动你的 挂B功能 =====
+        
+    });
+}
 #pragma mark --- 辅助函数-弹窗管理
 
 //弹窗管理
 - (void)showAlertWithTitle:(NSString *)title message:(NSString *)message exitOnDismiss:(BOOL)exitOnDismiss {
-    
-    //弹窗类型YES 就用系统弹窗 NO 就用SCLAlertView 弹窗
-    if (self.appInfo.弹窗类型) {
-        NSLog(@"使用系统弹窗");
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            if (exitOnDismiss) {
-                exit(0);
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addAction:action];
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
-    }else{
-        SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
-        alert.title = title;
-        alert.viewText.text = message;
-        [alert addButton:@"确定" actionBlock:^{
-            if (exitOnDismiss) {
-                exit(0);
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
+    dispatch_async(dispatch_get_main_queue(), ^{
         
-    }
+        //弹窗类型YES 就用系统弹窗 NO 就用SCLAlertView 弹窗
+        if (self.appInfo.弹窗类型) {
+            NSLog(@"使用系统弹窗");
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0];
+                
+                if (exitOnDismiss) {
+                    exit(0);
+                }
+                
+            }];
+            [alert addAction:action];
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+        }else{
+            SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
+            alert.title = title;
+            alert.viewText.text = message;
+            alert.viewText.textAlignment = NSTextAlignmentCenter;
+            [alert addButton:@"确定" actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];
+                
+                if (exitOnDismiss) {
+                    exit(0);
+                }
+               
+            }];
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+            
+        }
+    });
 }
 
 // 显示弹窗（支持传入闭包）
 - (void)showAlertWithTitle:(NSString *)title message:(NSString *)message actionHandler:(void (^)(void))handler {
-    if (self.appInfo.弹窗类型) {
-        NSLog(@"使用系统弹窗");
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            if (handler) {
-                handler(); // 执行传入的闭包
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addAction:action];
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
-    } else {
-        SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
-        alert.title = title;
-        alert.viewText.text = message;
-        [alert addButton:@"确定" actionBlock:^{
-            if (handler) {
-                handler(); // 执行传入的闭包
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.appInfo.弹窗类型) {
+            NSLog(@"使用系统弹窗");
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0];
+                if (handler) {
+                    handler(); // 执行传入的闭包
+                }
+               
+            }];
+            [alert addAction:action];
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+        } else {
+            SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
+            alert.title = title;
+            alert.viewText.text = message;
+            alert.viewText.textAlignment = NSTextAlignmentCenter;
+            [alert addButton:@"确定" actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];
+                if (handler) {
+                    handler(); // 执行传入的闭包
+                }
+                
+            }];
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+        }
+    });
 }
 
 // 显示弹窗（支持传入确定按钮标题、取消回调和确定回调）
 - (void)showAlertWithTitle:(NSString *)title
                    message:(NSString *)message
-          confirmButtonTitle:(NSString *)confirmButtonTitle
-           cancelHandler:(void (^)(void))cancelHandler
-          confirmHandler:(void (^)(void))confirmHandler {
-    if (self.appInfo.弹窗类型) {
-        NSLog(@"使用系统弹窗");
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        
-        // 添加“取消”按钮
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            if (cancelHandler) {
-                cancelHandler(); // 执行取消回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addAction:cancelAction];
-        
-        // 添加“确定”按钮（支持自定义标题）
-        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            if (confirmHandler) {
-                confirmHandler(); // 执行确定回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addAction:confirmAction];
-        
-        // 将弹窗加入队列并显示
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
-    } else {
-        SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
-        alert.title = title;
-        alert.viewText.text = message;
-        [alert addButton:confirmButtonTitle actionBlock:^{
-            if (confirmHandler) {
-                confirmHandler(); // 执行确定回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addButton:@"取消" actionBlock:^{
-            if (cancelHandler) {
-                cancelHandler(); // 执行取消回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
-    }
+        confirmButtonTitle:(NSString *)confirmButtonTitle
+             cancelHandler:(void (^)(void))cancelHandler
+            confirmHandler:(void (^)(void))confirmHandler {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.appInfo.弹窗类型) {
+            NSLog(@"使用系统弹窗");
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+            
+            // 添加“取消”按钮
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0];
+                if (cancelHandler) {
+                    cancelHandler(); // 执行取消回调
+                }
+                
+            }];
+            [alert addAction:cancelAction];
+            
+            // 添加“确定”按钮（支持自定义标题）
+            UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0];
+                if (confirmHandler) {
+                    confirmHandler(); // 执行确定回调
+                }
+                
+            }];
+            [alert addAction:confirmAction];
+            
+            // 将弹窗加入队列并显示
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+        } else {
+            SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
+            alert.title = title;
+            alert.viewText.text = message;
+            alert.viewText.textAlignment = NSTextAlignmentCenter;
+            [alert addButton:confirmButtonTitle actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];
+                if (confirmHandler) {
+                    confirmHandler(); // 执行确定回调
+                }
+                
+            }];
+            [alert addButton:@"取消" actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];
+                if (cancelHandler) {
+                    cancelHandler(); // 执行取消回调
+                }
+                
+            }];
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+        }
+    });
 }
 
 // 显示弹窗（支持传入确定按钮标题、取消回调和确定回调）
 - (void)showAlertWithTitle:(NSString *)title
                    message:(NSString *)message
-          confirmButtonTitle:(NSString *)confirmButtonTitle
+        confirmButtonTitle:(NSString *)confirmButtonTitle
          cancelButtonTitle:(NSString *)cancelButtonTitle
-           cancelHandler:(void (^)(void))cancelHandler
-          confirmHandler:(void (^)(void))confirmHandler {
-    if (self.appInfo.弹窗类型) {
-        NSLog(@"使用系统弹窗");
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        
-        // 添加“取消”按钮
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            if (cancelHandler) {
-                cancelHandler(); // 执行取消回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addAction:cancelAction];
-        
-        // 添加“确定”按钮（支持自定义标题）
-        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            if (confirmHandler) {
-                confirmHandler(); // 执行确定回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addAction:confirmAction];
-        
-        // 将弹窗加入队列并显示
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
-    } else {
-        SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
-        alert.title = title;
-        alert.viewText.text = message;
-        [alert addButton:confirmButtonTitle actionBlock:^{
-            if (confirmHandler) {
-                confirmHandler(); // 执行确定回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [alert addButton:cancelButtonTitle actionBlock:^{
-            if (cancelHandler) {
-                cancelHandler(); // 执行取消回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        [self.alertQueue addObject:alert];
-        [self transitionToState:ValidationStateShowAlert];
-    }
+             cancelHandler:(void (^)(void))cancelHandler
+            confirmHandler:(void (^)(void))confirmHandler {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.appInfo.弹窗类型) {
+            NSLog(@"使用系统弹窗");
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+            
+            // 添加“取消”按钮
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0];
+                if (cancelHandler) {
+                    cancelHandler(); // 执行取消回调
+                }
+               
+            }];
+            [alert addAction:cancelAction];
+            
+            // 添加“确定”按钮（支持自定义标题）
+            UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0];
+                if (confirmHandler) {
+                    confirmHandler(); // 执行确定回调
+                }
+                
+            }];
+            [alert addAction:confirmAction];
+            
+            // 将弹窗加入队列并显示
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+        } else {
+            SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
+            alert.title = title;
+            alert.viewText.text = message;
+            alert.viewText.textAlignment = NSTextAlignmentCenter;
+            [alert addButton:confirmButtonTitle actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];
+                if (confirmHandler) {
+                    confirmHandler(); // 执行确定回调
+                }
+                
+            }];
+            [alert addButton:cancelButtonTitle actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];
+                if (cancelHandler) {
+                    cancelHandler(); // 执行取消回调
+                }
+                
+            }];
+            [self.alertQueue addObject:alert];
+            [self transitionToState:ValidationStateShowAlert];
+        }
+    });
 }
 
 // 显示弹窗（支持传入确定取消按钮标题、和输入框 取消回调和确定回调和输入内容回调）
 - (void)showAlertWithTitle:(NSString *)title
                    message:(NSString *)message
-       textFieldPlaceholder:(NSString *)placeholder
-          confirmButtonTitle:(NSString *)confirmButtonTitle
-           cancelButtonTitle:(NSString *)cancelButtonTitle
-              cancelHandler:(void (^)(void))cancelHandler
-             confirmHandler:(void (^)(NSString * _Nullable inputText))confirmHandler {
-    if (self.appInfo.弹窗类型) {
-        NSLog(@"使用系统弹窗");
-        // 创建弹窗
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        
-        // 添加输入框
-        [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-            textField.placeholder = placeholder; // 输入框占位符
-        }];
-        
-        // 添加“取消”按钮
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            if (cancelHandler) {
-                cancelHandler(); // 执行取消回调
-            }
-            [self.alertQueue removeObjectAtIndex:0];// 从队列中移除当前弹窗
-        }];
-        [alert addAction:cancelAction];
-        
-        // 添加“确定”按钮
-        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [self.alertQueue removeObjectAtIndex:0]; // 从队列中移除当前弹窗
-            // 获取输入框内容
-            UITextField *textField = alert.textFields.firstObject;
-            NSString *inputText = textField.text;
+      textFieldPlaceholder:(NSString *)placeholder
+        confirmButtonTitle:(NSString *)confirmButtonTitle
+         cancelButtonTitle:(NSString *)cancelButtonTitle
+             cancelHandler:(void (^)(void))cancelHandler
+            confirmHandler:(void (^)(NSString * _Nullable inputText))confirmHandler {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.appInfo.弹窗类型) {
+            NSLog(@"使用系统弹窗");
+            // 创建弹窗
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
             
-            if (confirmHandler) {
-                confirmHandler(inputText); // 执行确定回调，并传入输入框内容
-            }
+            // 添加输入框
+            [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                textField.placeholder = placeholder; // 输入框占位符
+            }];
             
-        }];
-        [alert addAction:confirmAction];
-        
-        // 将弹窗加入队列
-        [self.alertQueue addObject:alert];
-        
-        // 如果当前没有弹窗显示，则显示弹窗
-        [self transitionToState:ValidationStateShowAlert];
-    } else {
-        SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
-        alert.title = title;
-        alert.viewText.text = message;
-        
-        // 添加输入框
-        alert.shouldDismissOnTapOutside = NO;
-        SCLTextView *textF = [alert addTextField:placeholder setDefaultText:nil];
-        
-        // 添加“取消”按钮
-        if ([cancelButtonTitle containsString:@"粘贴"]) {
-            [alert addButton:@"粘贴" validationBlock:^BOOL{
-                UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-                textF.text =pasteboard.string;
-                return NO;
-            }actionBlock:^{}];
-        }else{
-            [alert addButton:cancelButtonTitle actionBlock:^{
+            // 添加“取消”按钮
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0];// 从队列中移除当前弹窗
                 if (cancelHandler) {
                     cancelHandler(); // 执行取消回调
                 }
-                [self.alertQueue removeObjectAtIndex:0];
+                
             }];
+            
+            
+            [alert addAction:cancelAction];
+            
+            // 添加“确定”按钮
+            UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0]; // 从队列中移除当前弹窗
+                // 获取输入框内容
+                UITextField *textField = alert.textFields.firstObject;
+                NSString *inputText = textField.text;
+                
+                if (confirmHandler) {
+                    confirmHandler(inputText); // 执行确定回调，并传入输入框内容
+                }
+                
+            }];
+            [alert addAction:confirmAction];
+            
+            // 将弹窗加入队列
+            [self.alertQueue addObject:alert];
+            
+            // 如果当前没有弹窗显示，则显示弹窗
+            [self transitionToState:ValidationStateShowAlert];
+        } else {
+            SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
+            alert.title = title;
+            alert.viewText.text = message;
+            alert.viewText.textAlignment = NSTextAlignmentCenter;
+            
+            // 添加输入框
+            alert.shouldDismissOnTapOutside = NO;
+            SCLTextView *textF = [alert addTextField:placeholder setDefaultText:nil];
+            
+            // 添加“取消”按钮
+            [alert addButton:cancelButtonTitle actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];// 从队列中移除当前弹窗
+                if (cancelHandler) {
+                    cancelHandler(); // 执行取消回调
+                }
+                
+            }];
+            
+            
+            
+            // 添加“确定”按钮
+            [alert addButton:confirmButtonTitle actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];// 从队列中移除当前弹窗
+                if (confirmHandler) {
+                    confirmHandler(textF.text); // 执行确定回调，并传入输入框内容
+                }
+                
+            }];
+            
+            
+            // 将弹窗加入队列
+            [self.alertQueue addObject:alert];
+            
+            // 如果当前没有弹窗显示，则显示弹窗
+            [self transitionToState:ValidationStateShowAlert];
         }
-        
-        
-        
-        // 添加“确定”按钮
-        [alert addButton:confirmButtonTitle actionBlock:^{
-            if (confirmHandler) {
-                confirmHandler(textF.text); // 执行确定回调，并传入输入框内容
-            }
-            [self.alertQueue removeObjectAtIndex:0];
-        }];
-        
-        
-        // 将弹窗加入队列
-        [self.alertQueue addObject:alert];
-        
-        // 如果当前没有弹窗显示，则显示弹窗
-        [self transitionToState:ValidationStateShowAlert];
-    }
+    });
 }
-
+// 显示弹窗（支持传入确定取消按钮标题、和输入框 取消回调和确定回调和输入内容回调）
+- (void)showAlertWithTitle:(NSString *)title
+                   message:(NSString *)message
+      textFieldPlaceholder:(NSString *)placeholder
+        confirmButtonTitle:(NSString *)confirmButtonTitle
+            confirmHandler:(void (^)(NSString * _Nullable inputText))confirmHandler {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.appInfo.弹窗类型) {
+            NSLog(@"使用系统弹窗");
+            // 创建弹窗
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+            
+            // 添加输入框
+            [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                textField.placeholder = placeholder; // 输入框占位符
+            }];
+            
+            
+            // 添加“确定”按钮
+            UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self.alertQueue removeObjectAtIndex:0]; // 从队列中移除当前弹窗
+                // 获取输入框内容
+                UITextField *textField = alert.textFields.firstObject;
+                NSString *inputText = textField.text;
+                
+                if (confirmHandler) {
+                    confirmHandler(inputText); // 执行确定回调，并传入输入框内容
+                }
+                
+            }];
+            [alert addAction:confirmAction];
+            
+            // 将弹窗加入队列
+            [self.alertQueue addObject:alert];
+            
+            // 如果当前没有弹窗显示，则显示弹窗
+            [self transitionToState:ValidationStateShowAlert];
+        } else {
+            SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
+            alert.title = title;
+            alert.viewText.text = message;
+            alert.viewText.textAlignment = NSTextAlignmentCenter;
+            // 添加输入框
+            alert.shouldDismissOnTapOutside = NO;
+            SCLTextView *textF = [alert addTextField:placeholder setDefaultText:nil];
+            
+            // 添加“确定”按钮
+            [alert addButton:confirmButtonTitle actionBlock:^{
+                [self.alertQueue removeObjectAtIndex:0];// 从队列中移除当前弹窗
+                if (confirmHandler) {
+                    confirmHandler(textF.text); // 执行确定回调，并传入输入框内容
+                }
+               
+            }];
+            
+            
+            // 将弹窗加入队列
+            [self.alertQueue addObject:alert];
+            
+            // 如果当前没有弹窗显示，则显示弹窗
+            [self transitionToState:ValidationStateShowAlert];
+        }
+    });
+}
 // 处理弹窗显示状态
 - (void)handleShowAlertState {
     NSLog(@"处理弹窗显示状态 self.alertQueue.count: %ld", self.alertQueue.count);
     dispatch_async(dispatch_get_main_queue(), ^{
         // 如果当前没有弹窗显示，且队列中有弹窗
         UIViewController *topViewController = [self topViewController];
-        id firstAlertInQueue = self.alertQueue.firstObject;
+        id firstAlertInQueue = self.isSuccess ? self.alertQueue.firstObject :self.alertQueue.lastObject;
         if ([firstAlertInQueue isKindOfClass:[UIAlertController class]]) {
-            UIAlertController * alert = (UIAlertController *)self.alertQueue.firstObject;
+            UIAlertController * alert = (UIAlertController *)firstAlertInQueue;
             // 如果当前显示的视图控制器是弹窗，并且是队列中的第一个弹窗
             if ([topViewController isKindOfClass:[UIAlertController class]]) {
                 UIAlertController *currentAlert = (UIAlertController *)topViewController;
@@ -1089,7 +1242,7 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
             }
         }
     }
-
+    
     // 检查传入的视图控制器
     if (viewController != nil) {
         for (UIView *subview in viewController.view.subviews) {
@@ -1098,7 +1251,7 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
             }
         }
     }
-
+    
     return NO; // 没有找到 SCLAlertView
 }
 
@@ -1117,6 +1270,9 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
                                     repeats:YES block:^(NSTimer * _Nonnull timer) {
         // 如果验证成功，不执行
         if (self.isSuccess || self.currentState == ValidationStateInitial || self.currentState == ValidationStateFinished) {
+            // 将手势识别器添加到主窗口
+            UIWindow *window = [UIApplication sharedApplication].keyWindow;
+            [window addGestureRecognizer:self.threeFingerDoubleTapGesture];
             return;
         }
         

@@ -13,6 +13,7 @@
 #import <QuickLook/QuickLook.h>
 #import <UIKit/UIKit.h>
 #import "AppInfo.h"
+
 #import <dlfcn.h>
 #include <stdio.h>
 #import "UDIDRetriever.h"
@@ -116,6 +117,12 @@
                             case 10:
                                 self.appInfo.是否强制版本更新 = status;
                                 break;
+                            case 11:
+                                self.appInfo.是否三指双击显示到期时间 = status;
+                                break;
+                            case 12:
+                                self.appInfo.是否验证特征码一致 = status;
+                                break;
                                 
                                 
                             default:
@@ -211,52 +218,13 @@
                     completion(nil, error);
                 });
             } else {
-                // URL 正常
-                //请求的url
-                NSArray *strarr = [BSPHP_HOST componentsSeparatedByString:@"appid="];
-                NSArray *strarr2 = [strarr[1] componentsSeparatedByString:@"&m="];
-                NSString* daihao=strarr2[0];
-                
+               
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
                 if ([httpResponse statusCode] == 404) {
                     NSLog(@"URL 返回 404 错误 提示用户安装UDID描述文件");
-                    //如果有错误 证明服务器没有 那就安装描述文件获取
-                    NSString*url=[NSString stringWithFormat:@"%@udid.php?id=%@&openurl=%@&daihao=%@",UDID_HOST,suijiid,urlSchemes,daihao];
-                    NSLog(@"URL 地址：%@", url);
-                    if (self.appInfo.弹窗类型) {
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"安装描述文件-获取绑定机器码" preferredStyle:UIAlertControllerStyleAlert];
-                            [alertController addAction:[UIAlertAction actionWithTitle:@"退出应用" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                                exit(0);
-                            }]];
-                            [alertController addAction:[UIAlertAction actionWithTitle:@"确定安装" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url] options:@{} completionHandler:^(BOOL success) {
-                                    exit(0);
-                                }];
-                                
-                            }]];
-                            
-                            UIViewController * rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-                            [rootViewController presentViewController:alertController animated:YES completion:nil];
-                        });
-                        
-                    }else{
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                            SCLAlertView *alert =  [[SCLAlertView alloc] initWithNewWindow];
-                            alert.customViewColor=[UIColor systemGreenColor];
-                            alert.shouldDismissOnTapOutside = NO;
-                            [alert addButton:@"退出应用" actionBlock:^{
-                                exit(0);
-                            }];
-                            [alert addButton:@"确定安装" actionBlock:^{
-                                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url] options:@{} completionHandler:^(BOOL success) {
-                                    exit(0);
-                                }];
-                            }];
-                            [alert showQuestion:@"安装描述文件" subTitle:@"获取机器码进行卡密绑定" closeButtonTitle:nil duration:0];
-                        });
-                        
-                    }
+                    
+                    completion(@"404服务器缓存读取错误",nil);
+                   
                 } else {
                     NSLog(@"URL 正常");
                     // 打印返回值非404的html字符串

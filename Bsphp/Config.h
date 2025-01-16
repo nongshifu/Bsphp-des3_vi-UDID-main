@@ -1,7 +1,7 @@
 //  BSPHPOC
 //  BSPHP 魔改UDID 技术团队 十三哥工作室
 //  承接软件APP开发 UDID定制 验证加密二改 PHP JS HTML5开发 辅助开发
-//  WX:NongShiFu123 QQ350722326
+//  WX:shisange2026 QQ350722326
 //  Created by MRW on 2022/11/14.
 //  GitHub:http://github.com/nongshifu/
 //  开源Q群: 398423911
@@ -12,18 +12,21 @@
 
 
 //服务器地址
-#define  BSPHP_HOST  @"https://myradar.cn/AppEn.php?appid=98737489&m=e295119ebfd1efb244f9cc3dd45568d1"
+#define  BSPHP_HOST  @"http://new.tancx.com/AppEn.php?appid=66666666&m=3a9d8b17c0a10b1b77f0544d35e835fa"
 //通信认证Key
-#define BSPHP_MUTUALKEY @"606951e92bbfeace83417f5508d1fe14"
+#define BSPHP_MUTUALKEY @"417a696c5ee663c14bc6fa48b3f53d51"
 //接收Sgin验证 注意必须填写 并且有[KEY]
 #define BSPHP_INSGIN @"[KEY]SGFAGAEGRERG"
 //输出Sgin验证 注意必须填写 并且有[KEY]
 #define BSPHP_TOSGIN @"[KEY]SGFAGAEGRERG"
 //数据加密密码
-#define BSPHP_PASSWORD @"zIXeKKgKCNeJMmAKzq"
+#define BSPHP_PASSWORD @"3Trq3vJCYh6sTLAP6b"
 
 //版本 和软件配置版本号一致 发布新版的时候 修改软件配置的版本号并且在URL那填写下载地址即可 客户端会弹出更新 确定会跳转浏览器下载
 #define JN_VERSION @"v1.0"
+
+//软件验证数据 核对防破解
+#define YZSJ @"zIXeKKgKCNeJMmAKzq"
 
 //加密秘钥 这个在服务器文件后台 网站目录/include/applibapi/encryption下的bsphp_3des_vi.php 里面保持一致 搜索bsphp666就有3处地方都改掉 和这里源码一致 BS安装默认为bsphp666
 //**注意 仅限8位数
@@ -33,7 +36,7 @@
 #define  BS_DSQ 1200
 
 //如果使用udid获取描述文件 需要udid.php上传到域名指定目录
-#define  UDID_HOST  @"https://myradar.cn/udid/"
+#define  UDID_HOST  @"https://km.fenshenbao.cn/udid/"
 
 //启动APP后多少秒开始验证 单位秒 ** 因为很多游戏有启动画面 启动动画 会刷新UI 刷掉弹窗 相当于没了验证 比如光遇 王者荣耀 等 要等启动动画结束才弹窗 自己测试时间
 #define BS延迟启动时间 1
@@ -41,14 +44,18 @@
 
 /*以下参数 填写在BSPHP后台对应的软件设置-软件描述处 每个功能一个换行 切记 参数为BOOL 值 YES 或NO 大写 顺序不能错源码写死了 复制粘贴即可 具体看 参数填写说明 图
  到期时间弹窗:YES
- 验证udid还是idfv:YES
+ 验证udid还是idfa:YES
  验证版本更新:YES
- 过直播:NO
- 系统弹窗/SCL弹窗:NO
+ SCL弹窗过直播:NO
+ 系统UI弹窗/SCL弹窗:NO
  是否每次弹公告:YES
- 试用模式:YES
+ 试用模式:NO
  支持解绑:YES
- 
+ 黑名单检测:YES
+ 是否免费模式:NO
+ 是否强制版本更新:NO
+ 是否三指双击显示到期时间:YES
+ 是否验证特征码一致:NO
  */
 
 /*BS参数说明-详情可以看图片 说明.png
@@ -61,10 +68,10 @@
  验证版本更新:YES
  解释=设YES验证BS软件配置里面的版本号和上面JN_VERSION处是否一致 不一致就弹出URL 去浏览器下载同时app闪退 强制更新 弹出的URL更新地址在软件配置-URL地址 处 ，设置NO不验证
  
- 过直播:YES
+ SCL弹窗过直播:YES
  解释=设置YES 弹窗就可以过直播 版本弹窗 时间到期弹窗 公告弹窗等 都能过录屏和截图 直播 ***果直播仅限SCL弹窗 系统弹窗不支持果直播 既(系统弹窗/SCL弹窗:NO)才支持
  
- 系统弹窗/SCL弹窗:YES
+ 系统UI弹窗/SCL弹窗:YES
  解释=YES使用系统弹窗(不支持过截屏直播不隐藏) ,NO 使用SCL 弹窗支持果直播 防止录屏
  
  是否每次弹公告:YES
@@ -78,7 +85,26 @@
  解释=如开启  新设备会检测机器码和首次激活绑定机器码判断 不一致就弹出解绑 扣除时间设置 在BS-软件配置-解绑定扣
  ** 注意 如果开启 那么 软件-限开控制-多开机器量 将失效 等同关闭。 账号多开设功能不影响
  
+ 黑名单检测:YES //仅在UDID模式下 安装描述文件的时候会判断是否被拉黑 -软件配置-用户分组 -新建(黑名单)分组  搜索卡密移动到黑名单分组即可，通过UDID查询是否黑名单
+ 将不能用你这个BS后台验证 ，搜索卡密-编辑 移动分组后 还可以写管理员备注 客户那会提示这个备注
+ 
+ 是否免费模式:NO  字面意思 设置为YES 那客户端就免费用 无需卡密 后期改NO 就重新需要卡密
+ 
+ 是否强制版本更新:NO  设置NO 软件后台-软件配置-版本号 修改后 和Config.h 源码里不一致就弹窗更新版本 客户可以取消 接着用 设置为YES 客户无法取消 会闪退 必须安装新版
+如果软件配置 软件URL地址 不为空 还会多一个更新按钮 点击会跳转软件URL地址 不写则不显示按钮
+ 
+ 是否三指双击显示到期时间:YES  YES/NO 开启户客户端可以随时三个手指触摸2次屏幕 显示到期时间 为什么三个手指那么麻烦 因为有的高手游戏10指操作的 怕误触
+ 
  更新日志======
+ 2025.01.14 支持离线验证 重构验证逻辑 支持断网 使用
+ 经部分用户特殊需求，如服务器被打等，导致无法访问 app用不了的情况，依然正常使用app 不用卸载安装正版！
+ 但是你的那些 不知名挂B功能请在 ValidationManager的handleFinishedState函数里调用 ，这样假如服务器被打 或者客户出国了 无法验证上 不用卸载app 正常使用 只是不能用你的
+ 那些挂B功能
+ 
+ 离线功能解释：软件逻辑A 真就是开启 假是关闭 逻辑a的提示 为纯数字 单位(秒) 离线验证周期，比如3600秒就是一天，那么客户首次联网验证成功后 会储存离线配置，然后你服务器被打 客户那1天内不受影响
+ 他哪怕飞行模式 也能验证成功 不走服务器 除非离线周期时间到了 才会重新联网验证
+ 
+ 
  2023.03.21 增加了拉黑功能 删除shiyong.php 试用功能集合到udid.php 并且自动识别目录 udid.php可上传任意目录
   ******注意 黑名单功能 需要BS后台-软件列表-用户分组-新建一个黑名单分组
   ***拉黑用户说明：复制卡密-或者机器码 BS后台-软件列表-用户-搜索卡密/机器码-编辑 分组移动到黑名单分组 **并且填写一个备注 比如：你已经被拉黑-别玩了，用户那边提示你备注的信息

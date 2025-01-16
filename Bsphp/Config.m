@@ -6,7 +6,7 @@
 #import "NSString+MD5.h"
 #import "NSString+URLCode.h"
 //是否打印
-#define MY_NSLog_ENABLED NO
+#define MY_NSLog_ENABLED YES
 
 #define NSLog(fmt, ...) \
 if (MY_NSLog_ENABLED) { \

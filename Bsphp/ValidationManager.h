@@ -47,6 +47,8 @@ typedef NS_ENUM(NSInteger, ValidationState) {
 
 @property (nonatomic, strong) NSMutableArray *alertQueue; // 弹窗队列
 
+//三指手势
+@property (nonatomic,strong) UITapGestureRecognizer *threeFingerDoubleTapGesture;
 
 + (instancetype)sharedManager;
 

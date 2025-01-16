@@ -210,6 +210,7 @@ SCLTimerDisplay *buttonTimer;
     // Init
     _labelTitle = [[UILabel alloc] init];
     _viewText = [[UITextView alloc] init];
+    _viewText.textAlignment = NSTextAlignmentCenter;
     _viewText.accessibilityTraits = UIAccessibilityTraitStaticText;
     _contentView = [[UIScrollView alloc] init];
     _circleView = [[UIView alloc] init];

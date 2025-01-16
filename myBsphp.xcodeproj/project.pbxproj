@@ -116,6 +116,15 @@
 		C2C1EA802D33EC1300D927C9 /* DES3Util.m in Sources */ = {isa = PBXBuildFile; fileRef = C2C1EA612D33EC1300D927C9 /* DES3Util.m */; };
 		C2C1EA812D33EC1300D927C9 /* NetWorkingApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C2C1EA622D33EC1300D927C9 /* NetWorkingApiClient.m */; };
 		C2C1EA822D33EC1300D927C9 /* NSString+URLCode.h in Headers */ = {isa = PBXBuildFile; fileRef = C2C1EA632D33EC1300D927C9 /* NSString+URLCode.h */; };
+		C2C1EFC42D3955F300D927C9 /* SVRadialGradientLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = C2C1EFB92D3955F200D927C9 /* SVRadialGradientLayer.m */; };
+		C2C1EFC52D3955F300D927C9 /* SVIndefiniteAnimatedView.h in Headers */ = {isa = PBXBuildFile; fileRef = C2C1EFBA2D3955F200D927C9 /* SVIndefiniteAnimatedView.h */; };
+		C2C1EFC62D3955F300D927C9 /* SVProgressHUD.h in Headers */ = {isa = PBXBuildFile; fileRef = C2C1EFBB2D3955F300D927C9 /* SVProgressHUD.h */; };
+		C2C1EFC72D3955F300D927C9 /* SVProgressAnimatedView.m in Sources */ = {isa = PBXBuildFile; fileRef = C2C1EFBD2D3955F300D927C9 /* SVProgressAnimatedView.m */; };
+		C2C1EFC82D3955F300D927C9 /* SVProgressHUD-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = C2C1EFBE2D3955F300D927C9 /* SVProgressHUD-Prefix.pch */; };
+		C2C1EFC92D3955F300D927C9 /* SVRadialGradientLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = C2C1EFBF2D3955F300D927C9 /* SVRadialGradientLayer.h */; };
+		C2C1EFCA2D3955F300D927C9 /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = C2C1EFC12D3955F300D927C9 /* SVProgressHUD.m */; };
+		C2C1EFCB2D3955F300D927C9 /* SVIndefiniteAnimatedView.m in Sources */ = {isa = PBXBuildFile; fileRef = C2C1EFC22D3955F300D927C9 /* SVIndefiniteAnimatedView.m */; };
+		C2C1EFCC2D3955F300D927C9 /* SVProgressAnimatedView.h in Headers */ = {isa = PBXBuildFile; fileRef = C2C1EFC32D3955F300D927C9 /* SVProgressAnimatedView.h */; };
 		EA203AEF28EE16B70008CF79 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA203AEE28EE16B70008CF79 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -150,7 +159,6 @@
 		6021E34B289F87CE00E2E121 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		60531FED28CB900000AEE837 /* udid.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = udid.php; sourceTree = "<group>"; };
 		60531FEE28CB900000AEE837 /* 1.mobileprovision */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1.mobileprovision; sourceTree = "<group>"; };
-		6084203A29C4523A00D06C8D /* 参数填写说明.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "参数填写说明.png"; sourceTree = "<group>"; };
 		6084203B29C452F100D06C8D /* 购买-更新说明图.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "购买-更新说明图.png"; sourceTree = "<group>"; };
 		6084203C29C4537700D06C8D /* BS-软件配置1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BS-软件配置1.png"; sourceTree = "<group>"; };
 		6084203D29C4537700D06C8D /* BS-软件配置2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BS-软件配置2.png"; sourceTree = "<group>"; };
@@ -185,7 +193,6 @@
 		C2425C912D3266F200E4ACD2 /* UDIDRetriever.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UDIDRetriever.h; sourceTree = "<group>"; };
 		C2425C922D3266F200E4ACD2 /* UDIDRetriever.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = UDIDRetriever.mm; sourceTree = "<group>"; };
 		C2425C952D32680800E4ACD2 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		C2425C992D32707900E4ACD2 /* GCDWebServers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GCDWebServers.framework; path = Bsphp/GCDWebServers.framework; sourceTree = "<group>"; };
 		C2425C9D2D3270F400E4ACD2 /* GCDWebServerFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerFunctions.h; sourceTree = "<group>"; };
 		C2425C9E2D3270F400E4ACD2 /* GCDWebServerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerPrivate.h; sourceTree = "<group>"; };
 		C2425C9F2D3270F400E4ACD2 /* GCDWebServerResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerResponse.m; sourceTree = "<group>"; };
@@ -238,6 +245,20 @@
 		C2C1EA612D33EC1300D927C9 /* DES3Util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DES3Util.m; sourceTree = "<group>"; };
 		C2C1EA622D33EC1300D927C9 /* NetWorkingApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetWorkingApiClient.m; sourceTree = "<group>"; };
 		C2C1EA632D33EC1300D927C9 /* NSString+URLCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+URLCode.h"; sourceTree = "<group>"; };
+		C2C1EB4E2D358B7C00D927C9 /* 详细参数说明.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "详细参数说明.png"; sourceTree = "<group>"; };
+		C2C1EB4F2D358C7000D927C9 /* 详细说明2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "详细说明2.png"; sourceTree = "<group>"; };
+		C2C1EEE02D39221400D927C9 /* SecureStorageKEY.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SecureStorageKEY.h; sourceTree = "<group>"; };
+		C2C1EEE12D39221400D927C9 /* SecureStorageKEY.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SecureStorageKEY.mm; sourceTree = "<group>"; };
+		C2C1EFB92D3955F200D927C9 /* SVRadialGradientLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVRadialGradientLayer.m; sourceTree = "<group>"; };
+		C2C1EFBA2D3955F200D927C9 /* SVIndefiniteAnimatedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVIndefiniteAnimatedView.h; sourceTree = "<group>"; };
+		C2C1EFBB2D3955F300D927C9 /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
+		C2C1EFBD2D3955F300D927C9 /* SVProgressAnimatedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressAnimatedView.m; sourceTree = "<group>"; };
+		C2C1EFBE2D3955F300D927C9 /* SVProgressHUD-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SVProgressHUD-Prefix.pch"; sourceTree = "<group>"; };
+		C2C1EFBF2D3955F300D927C9 /* SVRadialGradientLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVRadialGradientLayer.h; sourceTree = "<group>"; };
+		C2C1EFC02D3955F300D927C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C2C1EFC12D3955F300D927C9 /* SVProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressHUD.m; sourceTree = "<group>"; };
+		C2C1EFC22D3955F300D927C9 /* SVIndefiniteAnimatedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVIndefiniteAnimatedView.m; sourceTree = "<group>"; };
+		C2C1EFC32D3955F300D927C9 /* SVProgressAnimatedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressAnimatedView.h; sourceTree = "<group>"; };
 		EA203AEE28EE16B70008CF79 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -278,8 +299,9 @@
 				6021E2C7289F866E00E2E121 /* main.m */,
 				60531FEE28CB900000AEE837 /* 1.mobileprovision */,
 				60531FED28CB900000AEE837 /* udid.php */,
-				6084203A29C4523A00D06C8D /* 参数填写说明.png */,
+				C2C1EB4E2D358B7C00D927C9 /* 详细参数说明.png */,
 				6084203B29C452F100D06C8D /* 购买-更新说明图.png */,
+				C2C1EB4F2D358C7000D927C9 /* 详细说明2.png */,
 				6084203C29C4537700D06C8D /* BS-软件配置1.png */,
 				6084203D29C4537700D06C8D /* BS-软件配置2.png */,
 				6084227929C99AB700D06C8D /* README.md */,
@@ -302,7 +324,6 @@
 			children = (
 				C2425CDA2D32930800E4ACD2 /* UserNotifications.framework */,
 				C2425CD82D32710700E4ACD2 /* libz.1.tbd */,
-				C2425C992D32707900E4ACD2 /* GCDWebServers.framework */,
 				C2425C952D32680800E4ACD2 /* libz.tbd */,
 				608F6C7929B8A07D0058769D /* QuickLook.framework */,
 				EA203AEE28EE16B70008CF79 /* QuartzCore.framework */,
@@ -328,6 +349,7 @@
 		6021E22F289F866E00E2E121 /* Bsphp */ = {
 			isa = PBXGroup;
 			children = (
+				C2C1EFB82D3955F200D927C9 /* SVProgressHUD */,
 				C2425C4C2D3250A700E4ACD2 /* BSPHPAPI.h */,
 				C2425C4D2D3250A700E4ACD2 /* BSPHPAPI.mm */,
 				6021E270289F866E00E2E121 /* Config.h */,
@@ -343,6 +365,8 @@
 				C2425C482D324E8600E4ACD2 /* ValidationManager.h */,
 				C2425C492D324E8600E4ACD2 /* ValidationManager.m */,
 				C2C1EA532D33EC1300D927C9 /* YYModel */,
+				C2C1EEE02D39221400D927C9 /* SecureStorageKEY.h */,
+				C2C1EEE12D39221400D927C9 /* SecureStorageKEY.mm */,
 			);
 			path = Bsphp;
 			sourceTree = "<group>";
@@ -509,6 +533,31 @@
 			path = NetWork;
 			sourceTree = "<group>";
 		};
+		C2C1EFB82D3955F200D927C9 /* SVProgressHUD */ = {
+			isa = PBXGroup;
+			children = (
+				C2C1EFBC2D3955F300D927C9 /* include */,
+				C2C1EFC02D3955F300D927C9 /* PrivacyInfo.xcprivacy */,
+				C2C1EFBA2D3955F200D927C9 /* SVIndefiniteAnimatedView.h */,
+				C2C1EFC22D3955F300D927C9 /* SVIndefiniteAnimatedView.m */,
+				C2C1EFC32D3955F300D927C9 /* SVProgressAnimatedView.h */,
+				C2C1EFBD2D3955F300D927C9 /* SVProgressAnimatedView.m */,
+				C2C1EFBE2D3955F300D927C9 /* SVProgressHUD-Prefix.pch */,
+				C2C1EFBB2D3955F300D927C9 /* SVProgressHUD.h */,
+				C2C1EFC12D3955F300D927C9 /* SVProgressHUD.m */,
+				C2C1EFBF2D3955F300D927C9 /* SVRadialGradientLayer.h */,
+				C2C1EFB92D3955F200D927C9 /* SVRadialGradientLayer.m */,
+			);
+			path = SVProgressHUD;
+			sourceTree = "<group>";
+		};
+		C2C1EFBC2D3955F300D927C9 /* include */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -523,11 +572,13 @@
 				C2425C4E2D3250A700E4ACD2 /* BSPHPAPI.h in Headers */,
 				C2C1EA7C2D33EC1300D927C9 /* NSDictionary+StichingStringkeyValue.h in Headers */,
 				C2425CCF2D3270F500E4ACD2 /* GCDWebServerDataRequest.h in Headers */,
+				C2C1EFC82D3955F300D927C9 /* SVProgressHUD-Prefix.pch in Headers */,
 				C2C1EA822D33EC1300D927C9 /* NSString+URLCode.h in Headers */,
 				C2425CC62D3270F500E4ACD2 /* GCDWebServerRequest.h in Headers */,
 				60AB6BFE2A569C56002806D7 /* SCLTextView.h in Headers */,
 				C2425CBF2D3270F500E4ACD2 /* GCDWebServer.h in Headers */,
 				C2C1EA7D2D33EC1300D927C9 /* TFJGVGLGKFTVCSV.h in Headers */,
+				C2C1EFC92D3955F300D927C9 /* SVRadialGradientLayer.h in Headers */,
 				60AB6BF32A569C56002806D7 /* SCLAlertView.h in Headers */,
 				6021E31C289F866E00E2E121 /* AFSecurityPolicy.h in Headers */,
 				C2425CD12D3270F500E4ACD2 /* GCDWebServerFileRequest.h in Headers */,
@@ -536,8 +587,11 @@
 				C2425CBE2D3270F500E4ACD2 /* GCDWebServerConnection.h in Headers */,
 				C2425CCD2D3270F500E4ACD2 /* GCDWebServerErrorResponse.h in Headers */,
 				C2425CD62D3270F500E4ACD2 /* GCDWebServerURLEncodedFormRequest.h in Headers */,
+				C2C1EFCC2D3955F300D927C9 /* SVProgressAnimatedView.h in Headers */,
 				C2C1EA6D2D33EC1300D927C9 /* NSString+MD5.h in Headers */,
+				C2C1EFC62D3955F300D927C9 /* SVProgressHUD.h in Headers */,
 				6021E31F289F866E00E2E121 /* AFURLRequestSerialization.h in Headers */,
+				C2C1EFC52D3955F300D927C9 /* SVIndefiniteAnimatedView.h in Headers */,
 				60AB6BF52A569C56002806D7 /* SCLAlertViewResponder.h in Headers */,
 				60AB6BF72A569C56002806D7 /* SCLAlertViewStyleKit.h in Headers */,
 				C2C1EA692D33EC1300D927C9 /* MF_Base64Additions.h in Headers */,
@@ -666,12 +720,14 @@
 				60AB6C012A569C56002806D7 /* SCLTimerDisplay.m in Sources */,
 				C2425CC92D3270F500E4ACD2 /* GCDWebServerErrorResponse.m in Sources */,
 				6021E323289F866E00E2E121 /* AFURLSessionManager.m in Sources */,
+				C2C1EFCB2D3955F300D927C9 /* SVIndefiniteAnimatedView.m in Sources */,
 				60AB6BF82A569C56002806D7 /* SCLAlertViewStyleKit.m in Sources */,
 				60AB6BFD2A569C56002806D7 /* SCLSwitchView.m in Sources */,
 				C2425CCC2D3270F500E4ACD2 /* GCDWebServerDataResponse.m in Sources */,
 				C2425CC52D3270F500E4ACD2 /* GCDWebServerConnection.m in Sources */,
 				C2C1EA7A2D33EC1300D927C9 /* MF_Base64Additions.m in Sources */,
 				C2C1EA752D33EC1300D927C9 /* NSObject+YYModel.m in Sources */,
+				C2C1EFCA2D3955F300D927C9 /* SVProgressHUD.m in Sources */,
 				C2C1EA812D33EC1300D927C9 /* NetWorkingApiClient.m in Sources */,
 				C2425CC42D3270F500E4ACD2 /* GCDWebServer.m in Sources */,
 				C2C1EA672D33EC1300D927C9 /* NSDictionary+StichingStringkeyValue.m in Sources */,
@@ -680,8 +736,10 @@
 				C2C1EA802D33EC1300D927C9 /* DES3Util.m in Sources */,
 				6021E326289F866E00E2E121 /* AFNetworkReachabilityManager.m in Sources */,
 				C2425CCB2D3270F500E4ACD2 /* GCDWebServerFileResponse.m in Sources */,
+				C2C1EFC72D3955F300D927C9 /* SVProgressAnimatedView.m in Sources */,
 				C2425CC32D3270F500E4ACD2 /* GCDWebServerFunctions.m in Sources */,
 				6021E348289F866F00E2E121 /* main.m in Sources */,
+				C2C1EFC42D3955F300D927C9 /* SVRadialGradientLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -877,6 +935,7 @@
 				MonkeyDevInstallOnAnyBuild = YES;
 				MonkeyDevInstallOnProfiling = YES;
 				MonkeyDevkillProcessOnInstall = SpringBoard;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "-Wl,-sectcreate,__RESTRICT,__restrict,/dev/null";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
