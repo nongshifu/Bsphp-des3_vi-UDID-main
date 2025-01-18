@@ -46,7 +46,7 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
         _currentState = ValidationStateInitial;
         _alertQueue = [NSMutableArray array];
         _appInfo = [BSPHPAPI sharedAPI].appInfo;
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:BS_BBTC];
+        
         // 添加三指双击手势识别器
         [self setupThreeFingerDoubleTapGesture];
     }
@@ -60,12 +60,9 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
     self.threeFingerDoubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleThreeFingerDoubleTap:)];
     self.threeFingerDoubleTapGesture.numberOfTapsRequired = 2; // 双击
     self.threeFingerDoubleTapGesture.numberOfTouchesRequired = 3; // 三指
-    self.threeFingerDoubleTapGesture.delaysTouchesBegan = YES;
-    self.threeFingerDoubleTapGesture.delaysTouchesEnded = YES;
-    
     // 将手势识别器添加到主窗口
-    UIWindow *window = [UIApplication sharedApplication].keyWindow;
-    [window addGestureRecognizer:self.threeFingerDoubleTapGesture];
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    [vc.view addGestureRecognizer:self.threeFingerDoubleTapGesture];
 }
 
 - (void)handleThreeFingerDoubleTap:(UITapGestureRecognizer *)gesture {
@@ -1270,9 +1267,10 @@ NSLog((@"[%s] from class[%@] " fmt), __PRETTY_FUNCTION__, className, ##__VA_ARGS
                                     repeats:YES block:^(NSTimer * _Nonnull timer) {
         // 如果验证成功，不执行
         if (self.isSuccess || self.currentState == ValidationStateInitial || self.currentState == ValidationStateFinished) {
+           
             // 将手势识别器添加到主窗口
-            UIWindow *window = [UIApplication sharedApplication].keyWindow;
-            [window addGestureRecognizer:self.threeFingerDoubleTapGesture];
+            UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+            [vc.view addGestureRecognizer:self.threeFingerDoubleTapGesture];
             return;
         }
         

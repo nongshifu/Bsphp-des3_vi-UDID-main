@@ -12,21 +12,21 @@
 
 
 //服务器地址
-#define  BSPHP_HOST  @"https://new.tancx.com/AppEn.php?appid=66666666&m=3a9d8b17c0a10b1b77f0544d35e835fa"
+#define  BSPHP_HOST  @"https://km.fenshenbao.cn/AppEn.php?appid=98754722&m=69bb21a868696272572fbcd66085d03e"
 //通信认证Key
-#define BSPHP_MUTUALKEY @"417a696c5ee663c14bc6fa48b3f53d51"
+#define BSPHP_MUTUALKEY @"98eab6c041275233fd2dade736c7e242"
 //接收Sgin验证 注意必须填写 并且有[KEY]
-#define BSPHP_INSGIN @"[KEY]SGFAGAEGRERG"
+#define BSPHP_INSGIN @"[KEY]SGFEGAE1REQRG"
 //输出Sgin验证 注意必须填写 并且有[KEY]
-#define BSPHP_TOSGIN @"[KEY]SGFAGAEGRERG"
+#define BSPHP_TOSGIN @"[KEY]SGFEGAE1REQRG"
 //数据加密密码
-#define BSPHP_PASSWORD @"3Trq3vJCYh6sTLAP6b"
+#define BSPHP_PASSWORD @"eZt313zpJ0JEAGA7LK3RI"
 
 //版本 和软件配置版本号一致 发布新版的时候 修改软件配置的版本号并且在URL那填写下载地址即可 客户端会弹出更新 确定会跳转浏览器下载
 #define JN_VERSION @"v1.0"
 
 //软件验证数据 核对防破解
-#define YZSJ @"zIXeKKgKCNeJMmAKzq"
+#define YZSJ @"zlXeKKgKwqeQEsr"
 
 //加密秘钥 这个在服务器文件后台 网站目录/include/applibapi/encryption下的bsphp_3des_vi.php 里面保持一致 搜索bsphp666就有3处地方都改掉 和这里源码一致 BS安装默认为bsphp666
 //**注意 仅限8位数
